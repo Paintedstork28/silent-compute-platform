@@ -63,7 +63,7 @@
     <div class="login-title">Sign in to your account</div>
     <div class="login-sub">Access is provisioned by Silence Laboratories.</div>
 
-    <div class="role-toggle">
+    <div class="role-toggle" style="grid-template-columns:1fr 1fr 1fr;">
       <div class="role-btn active" id="roleConsumer" onclick="selectRole('consumer')">
         <div class="role-icon">🏢</div>
         <div class="role-label">Data Consumer</div>
@@ -73,6 +73,11 @@
         <div class="role-icon">🗃️</div>
         <div class="role-label">Data Provider</div>
         <div class="role-desc">Bank, telecom, aggregator</div>
+      </div>
+      <div class="role-btn" id="roleAdmin" onclick="selectRole('admin')">
+        <div class="role-icon">⚙️</div>
+        <div class="role-label">SL Admin</div>
+        <div class="role-desc">Internal only</div>
       </div>
     </div>
 
@@ -105,10 +110,12 @@ function selectRole(role) {
   selectedRole = role;
   document.getElementById('roleConsumer').classList.toggle('active', role === 'consumer');
   document.getElementById('roleProvider').classList.toggle('active', role === 'provider');
+  document.getElementById('roleAdmin').classList.toggle('active', role === 'admin');
 
   const hints = {
     consumer: 'consumer@neocredit.in &nbsp;·&nbsp; NeoCredit Financial',
-    provider: 'provider@bureauId.in &nbsp;·&nbsp; Bureau ID'
+    provider: 'provider@bureauId.in &nbsp;·&nbsp; Bureau ID',
+    admin: 'admin@silencelaboratories.com &nbsp;·&nbsp; SL Internal'
   };
   document.getElementById('hintText').innerHTML = hints[role];
 }
@@ -116,7 +123,8 @@ function selectRole(role) {
 function fillDemo() {
   const creds = {
     consumer: { email: 'consumer@neocredit.in', pass: 'demo1234' },
-    provider: { email: 'provider@bureauId.in', pass: 'demo1234' }
+    provider: { email: 'provider@bureauId.in', pass: 'demo1234' },
+    admin: { email: 'admin@silencelaboratories.com', pass: 'demo1234' }
   };
   document.getElementById('email').value = creds[selectedRole].email;
   document.getElementById('password').value = creds[selectedRole].pass;
@@ -135,9 +143,11 @@ function doLogin() {
   localStorage.setItem('sl_authed', '1');
 
   if (selectedRole === 'consumer') {
-    window.location.href = 'consumer/home.html';
-  } else {
+    window.location.href = 'consumer/marketplace.html';
+  } else if (selectedRole === 'provider') {
     window.location.href = 'provider/dashboard.html';
+  } else {
+    window.location.href = 'admin/dashboard.html';
   }
 }
 

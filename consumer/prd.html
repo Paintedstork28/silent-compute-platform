@@ -1304,6 +1304,62 @@
 
       <div class="section-divider"></div>
 
+      <!-- Section 12: Build scope -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 12</div>
+        <div class="prd-section-title">What We're Building — Platform Views and Build Scope</div>
+        <div class="prd-body-text">The platform has three distinct views, each built for a different user. Two are external-facing. One is internal only.</div>
+
+        <table class="prd-table" style="margin-bottom:24px;">
+          <thead><tr><th>Build area</th><th>Type</th><th>Who uses it</th></tr></thead>
+          <tbody>
+            <tr><td>Demand partner UI</td><td>External</td><td>Demand partner (fintech, lender, super-app)</td></tr>
+            <tr><td>Supply partner UI</td><td>External</td><td>Supply partner (bank, telecom, data provider)</td></tr>
+            <tr><td>Admin panel</td><td>Internal</td><td>SL team only</td></tr>
+            <tr><td>SDK installation and node setup</td><td>External (tooling)</td><td>Partner IT + SL Engineering at onboarding</td></tr>
+            <tr><td>Node deployment and configuration</td><td>External (infra)</td><td>Partner IT + SL Engineering at onboarding</td></tr>
+          </tbody>
+        </table>
+
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px;">Demand partner view (external)</div>
+        <div class="prd-body-text">The interface a lender, fintech, or super-app logs into. This is the primary product surface — the view through which enrichment runs are initiated, results are downloaded, and billing is tracked. Key screens: marketplace, enrichment selection, data upload, computation status, reports, and billing.</div>
+
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; margin-top:16px;">Supply partner view (external)</div>
+        <div class="prd-body-text">The interface a bank, telecom, or data provider logs into. Reactive by design — the supply partner does not initiate computation, they respond to it. Key screens: incoming computation requests (approve / reject), enrichment catalogue, node status, and earnings.</div>
+
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; margin-top:16px;">Admin view (internal — SL only)</div>
+        <div class="prd-body-text">An internal configuration interface used by SL to manage the platform on behalf of partners. Not visible to demand or supply partners. Organised into two tabs — supply partners and demand partners — so SL can manage each side independently and see the full state of the network at a glance.</div>
+
+        <table class="prd-table" style="margin-bottom:16px;">
+          <thead><tr><th>Module</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Supply partner tab</td>
+              <td>List of all supply partners and their onboarding status (not started / in progress / onboarded). Per partner: toggle enablement flag (active / inactive), configure base rates per enrichment type, view which demand partners have active computation agreements.</td>
+            </tr>
+            <tr>
+              <td>Demand partner tab</td>
+              <td>List of all demand partners and their onboarding status. Per partner: toggle enablement flag (active / inactive), view active supply agreements, enable or disable specific computation types per demand-supply pairing — reflecting what has been agreed in the DSA.</td>
+            </tr>
+            <tr>
+              <td>Pricing and cost configuration</td>
+              <td>Set and update supply partner base rate per enrichment type. Set and update SL margin (percentage or fixed) per supply partner or enrichment type. View effective demand partner price (base rate + margin) without either partner seeing the other's number. Rate card versioned and auditable — changes logged with date.</td>
+            </tr>
+            <tr>
+              <td>Internal sign-in</td>
+              <td>Separate authentication from the partner-facing login. SL team members only. Role-based access within the admin panel is a future consideration — in v1, all SL admin users have full access.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <strong>Key principle:</strong> The admin panel is the only place where partner enablement flags and computation agreements are set. The partner-facing views enforce these flags but do not manage them. All configuration is SL-owned and SL-controlled.
+        </div>
+
+      </div>
+
+      <div class="section-divider"></div>
+
       <!-- Out of scope -->
       <div class="prd-section">
         <div class="prd-section-num">Section 11</div>
