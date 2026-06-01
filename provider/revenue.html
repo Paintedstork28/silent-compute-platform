@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Billing — Silent Compute</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="wordmark">Silent Compute</div><div class="sub">Provider Portal</div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Provider</div>
+      <a class="nav-item" href="dashboard.html"><span class="icon">📊</span><span>Dashboard</span></a>
+      <a class="nav-item" href="agreements.html"><span class="icon">📄</span><span>Demand Partners</span></a>
+      <a class="nav-item" href="enrichments.html"><span class="icon">⚗️</span><span>Enrichments</span></a>
+      <a class="nav-item active" href="revenue.html"><span class="icon">💰</span><span>Billing</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="../index.html" onclick="localStorage.clear()"><span class="icon">→</span><span>Sign out</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">RS</div>
+        <div><div class="user-name">Rahul Sharma</div><div class="user-role">Bureau ID</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div><div class="topbar-title">Billing</div><div class="topbar-sub">Bureau ID · Earnings from data enrichment</div></div>
+      <button class="btn btn-secondary" onclick="showToast('📄 Downloading statement...')">↓ Download Statement</button>
+    </div>
+
+    <div class="page-body">
+
+      <div class="stat-grid">
+        <div class="stat-card stat-accent">
+          <div class="stat-label">May 2026 earnings</div>
+          <div class="stat-value">₹3,985</div>
+          <div class="stat-sub">2 completed runs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total earned (2026)</div>
+          <div class="stat-value">₹21,340</div>
+          <div class="stat-sub">Jan–May 2026</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Records enriched (May)</div>
+          <div class="stat-value">6,259</div>
+          <div class="stat-sub">across 2 consumers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Next payout</div>
+          <div class="stat-value">1 Jun</div>
+          <div class="stat-sub">NEFT to HDFC Bank ···4821</div>
+        </div>
+      </div>
+
+      <div class="section-header" style="margin-bottom:16px;">
+        <div class="section-title">Earnings Breakdown — May 2026</div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Consumer</th>
+                <th>Enrichments</th>
+                <th>Records matched</th>
+                <th>Rate</th>
+                <th>Earnings</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>22 May 2026</td>
+                <td><div style="font-weight:600; color:var(--text);">NeoCredit Financial</div><div style="font-size:11.5px; color:var(--text-muted);">DSA-2025-009</div></td>
+                <td><div class="chip-row"><span class="chip">Pre/Post-Paid</span><span class="chip">ARPU Band</span></div></td>
+                <td style="font-weight:600; color:var(--accent);">2,847</td>
+                <td style="font-family:monospace;">₹0.80 + ₹0.60</td>
+                <td style="font-weight:700; color:var(--text);">₹1,985.40</td>
+              </tr>
+              <tr>
+                <td>8 May 2026</td>
+                <td><div style="font-weight:600; color:var(--text);">FinoBank Digital</div><div style="font-size:11.5px; color:var(--text-muted);">DSA-2025-014</div></td>
+                <td><div class="chip-row"><span class="chip">Pre/Post-Paid</span><span class="chip">Tenure</span><span class="chip">ARPU</span></div></td>
+                <td style="font-weight:600; color:var(--accent);">3,412</td>
+                <td style="font-family:monospace;">₹0.80+0.50+0.30</td>
+                <td style="font-weight:700; color:var(--text);">₹2,000.08</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex; justify-content:flex-end; padding:14px 0 0; border-top:1px solid var(--border); margin-top:4px;">
+          <div style="text-align:right;">
+            <div style="font-size:12.5px; color:var(--text-muted);">Total May 2026</div>
+            <div style="font-size:20px; font-weight:800; color:var(--accent);">₹3,985.48</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing config -->
+      <div class="section-header" style="margin-bottom:16px;">
+        <div class="section-title">Your Pricing (Per-Record)</div>
+        <span class="badge badge-gray">Set via DSA — contact SL to update</span>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Enrichment Type</th><th>Rate per matched record</th><th>Active agreements</th></tr></thead>
+            <tbody>
+              <tr><td>Pre / Post-Paid Status</td><td style="font-family:monospace; color:var(--accent);">₹0.80</td><td>3</td></tr>
+              <tr><td>Monthly Recharge Band (ARPU)</td><td style="font-family:monospace; color:var(--accent);">₹0.60</td><td>2</td></tr>
+              <tr><td>Network Tenure</td><td style="font-family:monospace; color:var(--accent);">₹0.50</td><td>2</td></tr>
+              <tr><td>Data Usage Tier</td><td style="font-family:monospace; color:var(--accent);">₹0.40</td><td>1</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast hidden'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+</script>
+</body>
+</html>

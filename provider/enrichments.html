@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Available Enrichments — Silent Compute</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+  .enrich-section { margin-bottom: 36px; }
+  .enrich-section-header {
+    display: flex; align-items: center; gap: 12px;
+    padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 16px;
+  }
+  .section-icon { font-size: 22px; }
+  .enrich-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 0; margin-bottom: 10px; overflow: hidden;
+  }
+  .enrich-card.ready { border-left: 3px solid var(--green); }
+  .enrich-card.in-progress { border-left: 3px solid var(--yellow); }
+  .enrich-card.planned { border-left: 3px solid var(--text-muted); opacity: 0.75; }
+  .enrich-card-header {
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 16px; align-items: center;
+    padding: 16px 20px; cursor: pointer;
+  }
+  .enrich-card-header:hover { background: var(--bg-hover); }
+  .enrich-title { font-size: 13.5px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .enrich-query {
+    font-size: 12.5px; font-family: monospace;
+    color: var(--accent); background: var(--accent-dim);
+    padding: 3px 9px; border-radius: 4px; display: inline-block; margin: 4px 0;
+  }
+  .enrich-query.gray { color: var(--text-muted); background: var(--gray-dim); }
+  .enrich-desc-short { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .enrich-right { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .chevron { font-size: 12px; color: var(--text-muted); transition: transform 0.2s; }
+  .expanded .chevron { transform: rotate(90deg); }
+  .enrich-card-body {
+    display: none; border-top: 1px solid var(--border-subtle);
+    padding: 18px 20px; background: var(--bg);
+  }
+  .enrich-card-body.open { display: block; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .spec-item { font-size: 12.5px; }
+  .spec-label { color: var(--text-muted); margin-bottom: 3px; }
+  .spec-val { color: var(--text); font-weight: 500; }
+  .spec-val.code { font-family: monospace; color: var(--accent); }
+  .progress-note { font-size: 12.5px; color: var(--yellow); background: var(--yellow-dim); border: 1px solid rgba(227,179,65,0.25); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 12px; }
+  .consumers-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .status-key { display: flex; gap: 16px; margin-bottom: 24px; }
+  .status-key-item { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--text-muted); }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 24px; }
+  .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-muted); transition: all 0.15s; }
+  .filter-btn:hover { border-color: var(--text-muted); color: var(--text); }
+  .filter-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="wordmark">Silent Compute</div><div class="sub">Provider Portal</div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Provider</div>
+      <a class="nav-item" href="dashboard.html"><span class="icon">📊</span><span>Dashboard</span></a>
+      <a class="nav-item" href="agreements.html"><span class="icon">📄</span><span>Demand Partners</span></a>
+      <a class="nav-item active" href="enrichments.html"><span class="icon">⚗️</span><span>Enrichments</span></a>
+      <a class="nav-item" href="revenue.html"><span class="icon">💰</span><span>Billing</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="../index.html" onclick="localStorage.clear()"><span class="icon">→</span><span>Sign out</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">RS</div>
+        <div><div class="user-name">Rahul Sharma</div><div class="user-role">Bureau ID</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Available Enrichments</div>
+        <div class="topbar-sub">Specific computations agreed with consumers — what the query is, and whether it's ready to run</div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span class="badge badge-green">8 Ready</span>
+        <span class="badge badge-yellow">5 In Progress</span>
+        <span class="badge badge-gray">3 Planned</span>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <div class="info-box" style="margin-bottom:20px;">
+        <span>ℹ️</span>
+        <div>Each enrichment here is a specific computation that has been agreed under a DSA. <strong>Ready</strong> means the MPC circuit is configured and tested — consumers can run it now. <strong>In Progress</strong> means it's being built or validated. <strong>Planned</strong> means it's agreed in principle but not yet in scope.</div>
+      </div>
+
+      <div class="status-key">
+        <div class="status-key-item"><div class="status-dot" style="background:var(--green);"></div> Ready — live, consumers can run</div>
+        <div class="status-key-item"><div class="status-dot" style="background:var(--yellow);"></div> In Progress — being configured / tested</div>
+        <div class="status-key-item"><div class="status-dot" style="background:var(--text-muted);"></div> Planned — agreed, not yet in scope</div>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+        <button class="filter-btn" onclick="setFilter('ready', this)">Ready</button>
+        <button class="filter-btn" onclick="setFilter('in-progress', this)">In Progress</button>
+        <button class="filter-btn" onclick="setFilter('planned', this)">Planned</button>
+      </div>
+
+      <div id="enrichmentSections"></div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const ENRICHMENT_CATALOGUE = [
+  {
+    domain: 'Subscriber Status',
+    icon: '📱',
+    items: [
+      {
+        id: 'e1',
+        title: 'Pre / Post-Paid Status',
+        query: 'connection_type IN (pre_paid, post_paid)',
+        status: 'ready',
+        output: 'Categorical: Pre-paid / Post-paid',
+        coverage: '120M subscribers',
+        protocol: 'Secure equality test (OT-based)',
+        latency: '~2.1s per 10k records',
+        lastTested: '25 May 2026',
+        usedInAgreements: ['NeoCredit Financial', 'FinoBank Digital', 'QuickLend Technologies'],
+        notes: 'Most commonly requested. Fully validated across all active consumer nodes.'
+      },
+      {
+        id: 'e2',
+        title: 'SIM Active (last 30 days)',
+        query: 'last_activity_date >= NOW() - INTERVAL 30 DAYS',
+        status: 'ready',
+        output: 'Boolean: Active / Inactive',
+        coverage: '118M subscribers',
+        protocol: 'Secure date comparison (GC)',
+        latency: '~1.8s per 10k records',
+        lastTested: '20 May 2026',
+        usedInAgreements: ['FinoBank Digital'],
+        notes: 'Good proxy for liveness / stale identity detection.'
+      }
+    ]
+  },
+  {
+    domain: 'Recharge & Spend',
+    icon: '💳',
+    items: [
+      {
+        id: 'e3',
+        title: 'Monthly Recharge > ₹200',
+        query: 'avg_monthly_recharge > 200',
+        status: 'ready',
+        output: 'Boolean: Yes / No',
+        coverage: '115M subscribers',
+        protocol: 'Secure comparison (GC)',
+        latency: '~2.3s per 10k records',
+        lastTested: '22 May 2026',
+        usedInAgreements: ['NeoCredit Financial', 'FinoBank Digital', 'QuickLend Technologies'],
+        notes: 'Threshold agreed under all active DSAs. Proxy for minimum financial engagement.'
+      },
+      {
+        id: 'e4',
+        title: 'Monthly Recharge > ₹500',
+        query: 'avg_monthly_recharge > 500',
+        status: 'ready',
+        output: 'Boolean: Yes / No',
+        coverage: '115M subscribers',
+        protocol: 'Secure comparison (GC)',
+        latency: '~2.3s per 10k records',
+        lastTested: '22 May 2026',
+        usedInAgreements: ['NeoCredit Financial'],
+        notes: 'Higher-engagement tier. Often used alongside the ₹200 check to segment users.'
+      },
+      {
+        id: 'e5',
+        title: 'Monthly Recharge Band (bucketed)',
+        query: 'CASE WHEN avg_monthly_recharge < 200 THEN "low" WHEN ... END',
+        status: 'ready',
+        output: 'Categorical: <₹200 / ₹200–500 / >₹500',
+        coverage: '115M subscribers',
+        protocol: 'Secure range check (GC)',
+        latency: '~3.1s per 10k records',
+        lastTested: '18 May 2026',
+        usedInAgreements: ['NeoCredit Financial', 'FinoBank Digital'],
+        notes: 'Returns a distribution across buckets — not individual values.'
+      },
+      {
+        id: 'e6',
+        title: 'Monthly Recharge > ₹1,000',
+        query: 'avg_monthly_recharge > 1000',
+        status: 'in-progress',
+        output: 'Boolean: Yes / No',
+        coverage: '115M subscribers',
+        protocol: 'Secure comparison (GC)',
+        latency: 'TBD',
+        lastTested: null,
+        eta: 'June 2026',
+        progressNote: 'Circuit implementation complete. Undergoing privacy validation — threshold calibration against sample data. ETA: June 2026.',
+        usedInAgreements: ['QuickLend Technologies'],
+        notes: 'Requested by QuickLend for higher-income segment targeting.'
+      }
+    ]
+  },
+  {
+    domain: 'Network Tenure',
+    icon: '⏱',
+    items: [
+      {
+        id: 'e7',
+        title: 'Subscriber Tenure > 12 Months',
+        query: 'activation_date <= NOW() - INTERVAL 12 MONTHS',
+        status: 'ready',
+        output: 'Boolean: Yes / No',
+        coverage: '120M subscribers',
+        protocol: 'Secure date comparison (GC)',
+        latency: '~1.9s per 10k records',
+        lastTested: '21 May 2026',
+        usedInAgreements: ['NeoCredit Financial', 'FinoBank Digital', 'QuickLend Technologies'],
+        notes: 'Strong proxy for residential / identity stability. High-demand signal.'
+      },
+      {
+        id: 'e8',
+        title: 'Tenure Band (bucketed)',
+        query: 'CASE WHEN tenure_months < 6 THEN "new" WHEN ... END',
+        status: 'ready',
+        output: 'Categorical: <6m / 6–12m / >1yr',
+        coverage: '120M subscribers',
+        protocol: 'Secure range check (GC)',
+        latency: '~2.8s per 10k records',
+        lastTested: '19 May 2026',
+        usedInAgreements: ['NeoCredit Financial'],
+        notes: ''
+      },
+      {
+        id: 'e9',
+        title: 'Subscriber Tenure > 24 Months',
+        query: 'activation_date <= NOW() - INTERVAL 24 MONTHS',
+        status: 'in-progress',
+        output: 'Boolean: Yes / No',
+        coverage: '120M subscribers',
+        protocol: 'Secure date comparison (GC)',
+        latency: 'TBD',
+        lastTested: null,
+        eta: 'July 2026',
+        progressNote: 'Circuit spec drafted. Pending integration test with FinoBank consumer node. ETA: July 2026.',
+        usedInAgreements: ['FinoBank Digital'],
+        notes: ''
+      }
+    ]
+  },
+  {
+    domain: 'Data Usage',
+    icon: '📡',
+    items: [
+      {
+        id: 'e10',
+        title: 'Monthly Data Usage Tier',
+        query: 'CASE WHEN avg_data_gb < 2 THEN "light" WHEN ... END',
+        status: 'in-progress',
+        output: 'Categorical: Light (<2GB) / Medium (2–10GB) / Heavy (>10GB)',
+        coverage: '110M subscribers',
+        protocol: 'Secure range check (GC)',
+        latency: 'TBD',
+        lastTested: null,
+        eta: 'June 2026',
+        progressNote: 'Data field normalisation in progress — operator records use different units across circle databases. Standardisation ETA: June 2026.',
+        usedInAgreements: ['NeoCredit Financial', 'QuickLend Technologies'],
+        notes: 'Higher complexity due to data normalisation across circles.'
+      },
+      {
+        id: 'e11',
+        title: 'Heavy Data User (> 10GB/month)',
+        query: 'avg_data_gb > 10',
+        status: 'in-progress',
+        output: 'Boolean: Yes / No',
+        coverage: '110M subscribers',
+        protocol: 'Secure comparison (GC)',
+        latency: 'TBD',
+        lastTested: null,
+        eta: 'June 2026',
+        progressNote: 'Blocked on same normalisation issue as Data Usage Tier — resolves together.',
+        usedInAgreements: ['QuickLend Technologies'],
+        notes: ''
+      },
+      {
+        id: 'e12',
+        title: 'International Roaming Active',
+        query: 'roaming_active = true AND last_roaming_date >= NOW() - INTERVAL 90 DAYS',
+        status: 'planned',
+        output: 'Boolean: Yes / No',
+        coverage: 'Est. 8M subscribers',
+        protocol: 'Secure equality test (OT-based)',
+        latency: 'TBD',
+        lastTested: null,
+        eta: 'Q3 2026',
+        usedInAgreements: [],
+        notes: 'Agreed in principle with CreditBridge (pending DSA). No active consumer yet.'
+      },
+      {
+        id: 'e13',
+        title: 'Number Portability Flag',
+        query: 'ported_number = true',
+        status: 'planned',
+        output: 'Boolean: Yes / No (ported from another operator)',
+        coverage: '120M subscribers',
+        protocol: 'Secure equality test (OT-based)',
+        latency: 'TBD',
+        lastTested: null,
+        eta: 'Q4 2026',
+        usedInAgreements: [],
+        notes: 'Requested by two prospects not yet under DSA. Useful for identity continuity checks.'
+      },
+      {
+        id: 'e14',
+        title: 'SIM Swap in Last 30 Days',
+        query: 'sim_swap_date >= NOW() - INTERVAL 30 DAYS',
+        status: 'planned',
+        output: 'Boolean: Yes / No',
+        coverage: '120M subscribers',
+        protocol: 'Secure date comparison (GC)',
+        latency: 'TBD',
+        lastTested: null,
+        eta: 'Q3 2026',
+        usedInAgreements: [],
+        notes: 'Fraud signal. High interest from FinoBank and NeoCredit — will be included in next DSA amendment.'
+      }
+    ]
+  }
+];
+
+let currentFilter = 'all';
+let openCards = new Set();
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderSections();
+}
+
+function renderSections() {
+  const container = document.getElementById('enrichmentSections');
+  container.innerHTML = ENRICHMENT_CATALOGUE.map(section => {
+    const items = section.items.filter(i => currentFilter === 'all' || i.status === currentFilter);
+    if (!items.length) return '';
+
+    return `
+      <div class="enrich-section">
+        <div class="enrich-section-header">
+          <span class="section-icon">${section.icon}</span>
+          <div>
+            <div class="section-title">${section.domain}</div>
+            <div class="section-sub">${items.length} enrichment${items.length > 1 ? 's' : ''} ${currentFilter === 'all' ? 'in this category' : 'matching filter'}</div>
+          </div>
+        </div>
+        ${items.map(item => renderCard(item)).join('')}
+      </div>`;
+  }).join('');
+}
+
+function renderCard(item) {
+  const isOpen = openCards.has(item.id);
+
+  const statusBadge = {
+    ready: `<span class="badge badge-green badge-dot">Ready</span>`,
+    'in-progress': `<span class="badge badge-yellow badge-dot">In Progress</span>`,
+    planned: `<span class="badge badge-gray">Planned</span>`
+  }[item.status];
+
+  const queryClass = item.status === 'planned' ? 'gray' : '';
+  const consumerChips = item.usedInAgreements.length
+    ? item.usedInAgreements.map(c => `<span class="chip">${c}</span>`).join('')
+    : `<span style="font-size:12px; color:var(--text-muted);">No active agreements yet</span>`;
+
+  const progressSection = item.status === 'in-progress'
+    ? `<div class="progress-note">⏳ ${item.progressNote}</div>`
+    : '';
+
+  const testLine = item.lastTested
+    ? `<div class="spec-item"><div class="spec-label">Last tested</div><div class="spec-val">${item.lastTested}</div></div>`
+    : item.eta
+    ? `<div class="spec-item"><div class="spec-label">ETA</div><div class="spec-val">${item.eta}</div></div>`
+    : '';
+
+  const notesLine = item.notes
+    ? `<div style="font-size:12.5px; color:var(--text-muted); margin-top:12px;">${item.notes}</div>`
+    : '';
+
+  return `
+    <div class="enrich-card ${item.status}">
+      <div class="enrich-card-header ${isOpen ? 'expanded' : ''}" onclick="toggleCard('${item.id}')">
+        <div>
+          <div class="enrich-title">${item.title}</div>
+          <code class="enrich-query ${queryClass}">${item.query}</code>
+          <div class="enrich-desc-short">${item.output}</div>
+        </div>
+        <div class="enrich-right">
+          ${statusBadge}
+          <span class="badge badge-gray">${item.coverage}</span>
+          <span class="chevron">▶</span>
+        </div>
+      </div>
+      <div class="enrich-card-body ${isOpen ? 'open' : ''}" id="ecbody-${item.id}">
+        ${progressSection}
+        <div class="spec-grid">
+          <div class="spec-item">
+            <div class="spec-label">Output format</div>
+            <div class="spec-val">${item.output}</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">MPC Protocol</div>
+            <div class="spec-val">${item.protocol}</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Latency (est.)</div>
+            <div class="spec-val code">${item.latency}</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Coverage</div>
+            <div class="spec-val">${item.coverage}</div>
+          </div>
+          ${testLine}
+        </div>
+        <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Active in agreements</div>
+        <div class="consumers-row">${consumerChips}</div>
+        ${notesLine}
+      </div>
+    </div>`;
+}
+
+function toggleCard(id) {
+  if (openCards.has(id)) openCards.delete(id);
+  else openCards.add(id);
+  renderSections();
+}
+
+renderSections();
+</script>
+</body>
+</html>

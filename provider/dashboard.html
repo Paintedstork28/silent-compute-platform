@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Provider Dashboard — Silent Compute</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+  .provider-tag { background: var(--accent-dim); border: 1px solid rgba(45,212,191,0.3); border-radius: var(--radius); padding: 4px 10px; font-size: 11.5px; color: var(--accent); font-weight: 600; }
+
+  /* Pending card */
+  .pending-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--yellow);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+  .pending-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--yellow-dim); border: 1.5px solid rgba(180,83,9,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: var(--yellow); flex-shrink: 0;
+  }
+  .pending-info { flex: 1; min-width: 0; }
+  .pending-name { font-size: 13.5px; font-weight: 700; color: var(--text); }
+  .pending-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .pending-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .pending-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  /* Past requests table */
+  .requests-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .requests-table th { text-align: left; padding: 10px 14px; background: var(--bg); border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text-muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .requests-table td { padding: 13px 14px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); vertical-align: middle; }
+  .requests-table td:first-child { font-weight: 600; color: var(--text); }
+  .requests-table tr:last-child td { border-bottom: none; }
+  .requests-table tbody tr { cursor: pointer; transition: background 0.1s; }
+  .requests-table tbody tr:hover { background: var(--bg-hover); }
+  .requests-table tbody tr.active { background: var(--accent-dim); }
+
+  /* Detail panel */
+  .detail-panel {
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    background: var(--bg-card);
+    padding: 20px 24px;
+    display: none;
+  }
+  .detail-panel.open { display: block; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .detail-item { }
+  .detail-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .detail-value { font-size: 13.5px; color: var(--text); font-weight: 600; }
+  .detail-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="wordmark">Silent Compute</div>
+      <div class="sub">Provider Portal</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Provider</div>
+      <a class="nav-item active" href="dashboard.html"><span class="icon">📊</span><span>Dashboard</span></a>
+      <a class="nav-item" href="agreements.html"><span class="icon">📄</span><span>Demand Partners</span></a>
+      <a class="nav-item" href="enrichments.html"><span class="icon">⚗️</span><span>Enrichments</span></a>
+      <a class="nav-item" href="revenue.html"><span class="icon">💰</span><span>Billing</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="../index.html" onclick="localStorage.clear()"><span class="icon">→</span><span>Sign out</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">RS</div>
+        <div><div class="user-name">Rahul Sharma</div><div class="user-role">Bureau ID</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Provider Dashboard</div>
+        <div class="topbar-sub">Bureau ID · Data Partnerships</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <span class="badge badge-green badge-dot">Node Online</span>
+        <span class="provider-tag">120M users registered</span>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-card stat-accent">
+          <div class="stat-label">Revenue this month</div>
+          <div class="stat-value">₹3,985</div>
+          <div class="stat-sub">2 computations completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active agreements</div>
+          <div class="stat-value">3</div>
+          <div class="stat-sub">NeoCredit, QuickLend, FinoBank</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending requests</div>
+          <div class="stat-value">1</div>
+          <div class="stat-sub">Awaiting your approval</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Records enriched (May)</div>
+          <div class="stat-value">5,614</div>
+          <div class="stat-sub">across 2 demand partners</div>
+        </div>
+      </div>
+
+      <!-- Pending approval -->
+      <div class="section-header" style="margin-bottom:12px;">
+        <div>
+          <div class="section-title">Pending Approval</div>
+          <div class="section-sub">Manual approval required before computation can begin</div>
+        </div>
+        <span class="badge badge-yellow">1 pending</span>
+      </div>
+
+      <div class="pending-card" id="pendingCard">
+        <div class="pending-avatar" id="pendingAvatar">QL</div>
+        <div class="pending-info">
+          <div class="pending-name">QuickLend Technologies</div>
+          <div class="pending-sub">DSA-2025-031 · Submitted 28 May 2026, 14:32 · Est. ~8,000 records</div>
+          <div class="pending-chips">
+            <span class="chip">Pre / Post-Paid Status</span>
+            <span class="chip">Network Tenure</span>
+            <span class="chip">Data Usage Tier</span>
+          </div>
+        </div>
+        <div class="pending-actions" id="pendingActions">
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Decline flow — coming soon')">Reject</button>
+          <button class="btn btn-primary btn-sm" onclick="approveRequest()">Approve →</button>
+        </div>
+      </div>
+
+      <div class="info-box" style="margin-bottom:28px; font-size:12.5px;">
+        <span>🔒</span>
+        <div>QuickLend's user list is not visible to you at any point. PSI runs first — you will only learn the matched record count once you approve and computation begins.</div>
+      </div>
+
+      <!-- Past requests -->
+      <div class="section-header" style="margin-bottom:12px;">
+        <div>
+          <div class="section-title">Past Requests</div>
+          <div class="section-sub">Click any row to see details</div>
+        </div>
+      </div>
+
+      <div style="border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;">
+        <table class="requests-table">
+          <thead>
+            <tr>
+              <th>Demand partner</th>
+              <th>Computation types</th>
+              <th>Records matched</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="requestsBody"></tbody>
+        </table>
+        <div class="detail-panel" id="detailPanel">
+          <div class="detail-grid" id="detailGrid"></div>
+          <div class="info-box" style="font-size:12.5px;">
+            <span>🔒</span>
+            <div id="detailPrivacyNote"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="../assets/demo-data.js"></script>
+<script>
+const PAST_REQUESTS = [
+  {
+    id: 'r1',
+    partner: 'NeoCredit Financial',
+    initials: 'NC',
+    computations: ['Pre / Post-Paid Status', 'Monthly Recharge Band'],
+    matched: 2847,
+    date: '2026-05-22',
+    status: 'completed',
+    earnings: '₹1,985.40',
+    dsa: 'DSA-2025-009',
+    duration: '4.2s',
+  },
+  {
+    id: 'r2',
+    partner: 'FinoBank Digital',
+    initials: 'FB',
+    computations: ['Pre / Post-Paid Status', 'Network Tenure', 'ARPU Band'],
+    matched: 3412,
+    date: '2026-05-08',
+    status: 'completed',
+    earnings: '₹2,000.00',
+    dsa: 'DSA-2025-014',
+    duration: '5.1s',
+  },
+  {
+    id: 'r3',
+    partner: 'NeoCredit Financial',
+    initials: 'NC',
+    computations: ['Pre / Post-Paid Status', 'Data Usage Tier'],
+    matched: 1902,
+    date: '2026-04-11',
+    status: 'completed',
+    earnings: '₹1,141.20',
+    dsa: 'DSA-2025-009',
+    duration: '3.8s',
+  },
+  {
+    id: 'r4',
+    partner: 'QuickLend Technologies',
+    initials: 'QL',
+    computations: ['Network Tenure'],
+    matched: 0,
+    date: '2026-03-29',
+    status: 'rejected',
+    earnings: '—',
+    dsa: 'DSA-2025-031',
+    duration: '—',
+  },
+];
+
+let activeRow = null;
+
+function fmtDate(d) {
+  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function renderTable() {
+  const tbody = document.getElementById('requestsBody');
+  tbody.innerHTML = PAST_REQUESTS.map(r => {
+    const statusBadge = r.status === 'completed'
+      ? `<span class="badge badge-green badge-dot">Completed</span>`
+      : `<span class="badge badge-red">Rejected</span>`;
+    return `
+      <tr id="row-${r.id}" onclick="toggleDetail('${r.id}')">
+        <td>${r.partner}</td>
+        <td style="color:var(--text-muted); font-size:12.5px;">${r.computations.join(' · ')}</td>
+        <td style="font-weight:700; color:var(--text);">${r.matched > 0 ? r.matched.toLocaleString() : '—'}</td>
+        <td>${fmtDate(r.date)}</td>
+        <td>${statusBadge}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function toggleDetail(id) {
+  const panel = document.getElementById('detailPanel');
+  const r = PAST_REQUESTS.find(x => x.id === id);
+
+  if (activeRow === id) {
+    panel.classList.remove('open');
+    document.getElementById('row-' + activeRow)?.classList.remove('active');
+    activeRow = null;
+    return;
+  }
+
+  if (activeRow) {
+    document.getElementById('row-' + activeRow)?.classList.remove('active');
+  }
+
+  activeRow = id;
+  document.getElementById('row-' + id).classList.add('active');
+
+  document.getElementById('detailGrid').innerHTML = `
+    <div class="detail-item">
+      <div class="detail-label">Demand partner</div>
+      <div class="detail-value">${r.partner}</div>
+      <div class="detail-sub">${r.dsa}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Computation types</div>
+      <div class="detail-value" style="font-size:12.5px; line-height:1.7;">${r.computations.join('<br>')}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Records matched</div>
+      <div class="detail-value">${r.matched > 0 ? r.matched.toLocaleString() : '—'}</div>
+      <div class="detail-sub">${r.matched > 0 ? `Earnings: ${r.earnings} · ${r.duration} compute` : 'Request rejected'}</div>
+    </div>
+  `;
+
+  document.getElementById('detailPrivacyNote').textContent =
+    r.status === 'completed'
+      ? `${r.partner}'s Customer IDs and raw user list were never visible to you. You saw only the matched record count and earnings above.`
+      : `Request was rejected. No computation ran and no data was shared.`;
+
+  panel.classList.add('open');
+}
+
+function approveRequest() {
+  const card = document.getElementById('pendingCard');
+  const actions = document.getElementById('pendingActions');
+  const avatar = document.getElementById('pendingAvatar');
+
+  card.style.borderLeftColor = 'var(--accent)';
+  avatar.style.background = 'var(--accent-dim)';
+  avatar.style.borderColor = 'rgba(13,148,136,0.3)';
+  avatar.style.color = 'var(--accent)';
+
+  actions.innerHTML = `
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+      <span class="badge badge-green badge-dot">Approved</span>
+      <span style="font-size:11.5px; color:var(--text-muted);">Queued for PSI &amp; computation</span>
+    </div>
+  `;
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast hidden'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3200);
+}
+
+renderTable();
+</script>
+</body>
+</html>

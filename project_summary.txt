@@ -1,0 +1,88 @@
+Project: SL Compute — Data Enrichment Platform Demo
+Owner: Ambika Pande, Product Lead, Silence Laboratories
+Built: May 2026
+
+---
+
+PROJECT CONCEPT
+A full-platform demo of Silent Compute's data enrichment use case. Simulates a two-sided marketplace where data consumers (lenders, fintechs) can enrich their user data using insights from banks, telecom providers, and payment aggregators — with no raw data ever shared. Built to show prospects what the real product would look and feel like.
+
+Two separate portals:
+- Consumer Portal (lender/fintech): Browse providers, select enrichments, upload data, run computation, view results, manage billing
+- Provider Portal (bank/telecom/aggregator): Review requests, approve/decline, monitor computations, track revenue
+
+---
+
+HOW IT WAS BUILT
+Static HTML/CSS/JS — no build step, no framework, no backend.
+All computation is simulated via JavaScript timeouts and pre-seeded mock data.
+Navigation between pages uses localStorage to pass state (selected provider, run ID, etc.)
+Designed for GitHub Pages deployment.
+
+Files:
+- index.html — Login (consumer / provider role selector)
+- consumer/home.html — My Enrichments (consumer home, past runs)
+- consumer/marketplace.html — Provider marketplace with agreement status logic
+- consumer/configure.html — Enrichment selection + data upload wizard
+- consumer/computation.html — PSI animation + MPC computation visualiser
+- consumer/results.html — Results with distributions, access denied proof, audit trail
+- consumer/billing.html — Billing, line items, invoice history
+- consumer/reports.html — Downloads table for all completed runs
+- consumer/onboarding.html — Technical data source setup (field mapping, test PSI)
+- provider/dashboard.html — Provider home, pending requests, recent computations
+- provider/revenue.html — Provider earnings breakdown, pricing config
+- assets/styles.css — Shared design tokens and component styles
+- assets/demo-data.js — All mock data (providers, enrichments, past runs)
+
+---
+
+KEY DESIGN DECISIONS
+
+Agreement Gate:
+Credentials give you platform access. A separate agreement flag (per provider) gates computation.
+Three states per provider: Active (compute enabled), Pending (in review, locked), Request Access (no agreement).
+This reflects the real product: DSAs are signed offline with the SL team; the platform reflects their status.
+
+PSI First:
+Every computation runs PSI before enrichment. This is educational — it shows the privacy model to the prospect before they see results.
+
+Access Denied Moment:
+The results screen always shows "Provider raw data — Access Denied." This is the key proof moment in all demos.
+
+---
+
+DATA SOURCES
+All data is synthetic/fictional. No external APIs used.
+Provider list: HDFC Data Services, ICICI Insights, Axis Analytics, Bureau ID, Airtel Signals, PayU Insights, Razorpay Analytics.
+Demo consumer: NeoCredit Financial (Priya Mehta, Head of Risk).
+Demo provider: Bureau ID (Rahul Sharma, Data Partnerships Lead).
+
+---
+
+APIS & COSTS
+None. Fully static, zero ongoing cost.
+
+---
+
+DEPLOYMENT
+GitHub Pages (static HTML). Push to repo, enable Pages on main branch or docs/ folder.
+No login required to browse — open index.html in a browser directly for local demo.
+
+---
+
+WHAT IT CAN BE USED FOR
+- Sales demos with prospects (share as GitHub Pages link)
+- Conference / event demos
+- Internal alignment on product flow
+- Pitch deck companion (screenshot / record the flow)
+- Input to engineering for platform spec
+
+---
+
+SUGGESTED NEXT STEPS
+1. Add provider portal's incoming request flow with more detail (field-level consent view)
+2. Add a "new agreement request" flow from consumer side with email notification simulation
+3. Add more provider categories (insurance, utilities)
+4. Add a data schema preview modal in the configure screen
+5. Wire to real SC SDK when available — replace JS timeout simulation with actual PSI/MPC calls
+6. Add mobile-responsive layout pass

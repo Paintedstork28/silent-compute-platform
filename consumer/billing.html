@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Billing — Silent Compute</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+  .billing-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+  .invoice-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border-subtle); }
+  .invoice-row:last-child { border-bottom: none; }
+  .line-item { display: flex; justify-content: space-between; padding: 10px 0; font-size: 13px; border-bottom: 1px solid var(--border-subtle); }
+  .line-item:last-child { border-bottom: none; }
+  .line-label { color: var(--text-secondary); }
+  .line-val { color: var(--text); font-weight: 500; font-family: monospace; }
+  .total-row { display: flex; justify-content: space-between; padding: 14px 0 0; font-size: 15px; font-weight: 700; border-top: 1px solid var(--border); margin-top: 4px; }
+  .plan-card { background: var(--accent-dim); border: 1px solid rgba(45,212,191,0.3); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
+  .plan-name { font-size: 16px; font-weight: 800; color: var(--accent); margin-bottom: 4px; }
+  .plan-desc { font-size: 12.5px; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="wordmark">Silent Compute</div><div class="sub">Data Enrichment</div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Consumer</div>
+      <a class="nav-item" href="home.html"><span class="icon">📊</span><span>My Enrichments</span></a>
+      <a class="nav-item" href="marketplace.html"><span class="icon">🏪</span><span>Marketplace</span></a>
+      <a class="nav-item" href="reports.html"><span class="icon">📥</span><span>Downloads</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item active" href="billing.html"><span class="icon">💳</span><span>Billing</span></a>
+      <a class="nav-item" href="onboarding.html"><span class="icon">⚙️</span><span>Data Source</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="prd.html"><span class="icon">📋</span><span>PRD</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="../index.html" onclick="localStorage.clear()"><span class="icon">↩</span><span>Sign out</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">PM</div>
+        <div><div class="user-name">Priya Mehta</div><div class="user-role">NeoCredit Financial</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div><div class="topbar-title">Billing</div><div class="topbar-sub">NeoCredit Financial · May 2026</div></div>
+      <button class="btn btn-secondary" onclick="showToast('📄 Downloading invoice...')">↓ Download Invoice</button>
+    </div>
+
+    <div class="page-body">
+      <div class="billing-grid">
+        <div>
+          <!-- Current cycle -->
+          <div class="section-header" style="margin-bottom:16px;">
+            <div class="section-title">Current Billing Cycle</div>
+            <span class="badge badge-yellow">Due 1 Jun 2026</span>
+          </div>
+
+          <div class="card" style="margin-bottom:20px;">
+            <div style="font-size:13px; font-weight:700; color:var(--text-muted); margin-bottom:16px; text-transform:uppercase; letter-spacing:0.5px;">May 2026 — Line Items</div>
+
+            <div class="line-item">
+              <div>
+                <div class="line-label">Bureau ID · Pre/Post-Paid Status</div>
+                <div style="font-size:11.5px; color:var(--text-muted);">2,847 matched records · ₹0.80/record</div>
+              </div>
+              <div class="line-val">₹2,277.60</div>
+            </div>
+            <div class="line-item">
+              <div>
+                <div class="line-label">Bureau ID · Monthly Recharge Band</div>
+                <div style="font-size:11.5px; color:var(--text-muted);">2,847 matched records · ₹0.60/record</div>
+              </div>
+              <div class="line-val">₹1,708.20</div>
+            </div>
+            <div class="line-item">
+              <div>
+                <div class="line-label">HDFC Data Services · Monthly Income Band</div>
+                <div style="font-size:11.5px; color:var(--text-muted);">5,614 matched records · ₹1.20/record</div>
+              </div>
+              <div class="line-val">₹6,736.80</div>
+            </div>
+            <div class="line-item">
+              <div>
+                <div class="line-label">HDFC Data Services · EMI Obligation Detection</div>
+                <div style="font-size:11.5px; color:var(--text-muted);">5,614 matched records · ₹0.90/record</div>
+              </div>
+              <div class="line-val">₹5,052.60</div>
+            </div>
+            <div class="line-item">
+              <div>
+                <div class="line-label">PayU Insights · Spend by Category + 2 more</div>
+                <div style="font-size:11.5px; color:var(--text-muted);">2,190 matched records · ₹1.50/record (bundle)</div>
+              </div>
+              <div class="line-val">₹3,285.00</div>
+            </div>
+            <div class="line-item">
+              <div>
+                <div class="line-label">Platform fee — May 2026</div>
+                <div style="font-size:11.5px; color:var(--text-muted);">Monthly base access</div>
+              </div>
+              <div class="line-val">₹5,000.00</div>
+            </div>
+
+            <div class="total-row">
+              <span>Total due</span>
+              <span style="color:var(--accent);">₹24,060.20</span>
+            </div>
+          </div>
+
+          <!-- Invoice history -->
+          <div class="section-header" style="margin-bottom:16px;">
+            <div class="section-title">Invoice History</div>
+          </div>
+          <div class="card">
+            <div class="invoice-row">
+              <div>
+                <div style="font-size:13.5px; font-weight:600; color:var(--text);">April 2026</div>
+                <div style="font-size:12px; color:var(--text-muted);">2 runs · Bureau ID, PayU</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <span class="badge badge-green">Paid</span>
+                <span style="font-size:13.5px; font-weight:600; color:var(--text);">₹18,440.00</span>
+                <button class="btn btn-sm btn-secondary" onclick="showToast('📄 Downloading...')">↓</button>
+              </div>
+            </div>
+            <div class="invoice-row">
+              <div>
+                <div style="font-size:13.5px; font-weight:600; color:var(--text);">March 2026</div>
+                <div style="font-size:12px; color:var(--text-muted);">1 run · HDFC Data Services</div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <span class="badge badge-green">Paid</span>
+                <span style="font-size:13.5px; font-weight:600; color:var(--text);">₹11,200.00</span>
+                <button class="btn btn-sm btn-secondary" onclick="showToast('📄 Downloading...')">↓</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right panel -->
+        <div>
+          <div class="plan-card">
+            <div class="plan-name">Growth Plan</div>
+            <div class="plan-desc">Up to 50,000 matched records/month · 3 active provider agreements · Full audit trail</div>
+            <div style="margin-top:12px; font-size:12px; color:var(--text-muted);">Renews 1 June 2026 · ₹5,000/month base</div>
+          </div>
+
+          <div class="card" style="margin-bottom:16px;">
+            <div style="font-size:13px; font-weight:700; color:var(--text-muted); margin-bottom:14px; text-transform:uppercase; letter-spacing:0.5px;">May Usage</div>
+            <div style="margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span style="font-size:12.5px; color:var(--text-muted);">Matched records</span>
+                <span style="font-size:12.5px; font-weight:600; color:var(--text);">10,651 / 50,000</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:21%"></div></div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span style="font-size:12.5px; color:var(--text-muted);">Compute runs</span>
+                <span style="font-size:12.5px; font-weight:600; color:var(--text);">3 / unlimited</span>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span style="font-size:12.5px; color:var(--text-muted);">Active agreements</span>
+                <span style="font-size:12.5px; font-weight:600; color:var(--text);">3 / 3</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:100%; background:var(--yellow);"></div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px;">Payment Method</div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--text-secondary);">
+              <span>💳</span> ICICI Bank — ending 4291
+            </div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:6px;">Auto-debit on 1st of each month</div>
+            <button class="btn btn-sm btn-secondary" style="margin-top:12px;" onclick="showToast('Contact billing@silentlabs.io to update')">Update payment</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/demo-data.js"></script>
+<script>
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast hidden'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+</script>
+</body>
+</html>

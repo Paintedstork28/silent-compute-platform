@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi-party Enrichment — Silent Compute</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+  .steps-bar { display: flex; gap: 0; margin-bottom: 32px; align-items: center; }
+  .step-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 12.5px; color: var(--text-muted); }
+  .step-item.active { color: var(--accent); font-weight: 600; }
+  .step-item.done { color: var(--green); }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .step-sep { color: var(--border); margin: 0 12px; }
+
+  /* Provider selection grid */
+  .prov-select-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .prov-check-card {
+    background: var(--bg-card); border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg); padding: 16px; cursor: pointer;
+    transition: all 0.15s; position: relative;
+  }
+  .prov-check-card:hover:not(.locked) { border-color: var(--accent); }
+  .prov-check-card.selected { border-color: var(--accent); background: var(--accent-dim); }
+  .prov-check-card.locked { opacity: 0.5; cursor: not-allowed; }
+  .prov-checkbox { position: absolute; top: 14px; right: 14px; width: 18px; height: 18px; border: 1.5px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; background: var(--bg-card); }
+  .prov-check-card.selected .prov-checkbox { background: var(--accent); border-color: var(--accent); color: white; }
+  .prov-check-logo { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: white; margin-bottom: 10px; }
+  .prov-check-name { font-size: 13.5px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .prov-check-meta { font-size: 12px; color: var(--text-muted); }
+  .locked-badge { font-size: 10.5px; color: var(--text-muted); background: var(--gray-dim); padding: 2px 7px; border-radius: 10px; margin-top: 6px; display: inline-block; }
+
+  /* Enrichment accordion per provider */
+  .provider-enrich-block { border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 12px; overflow: hidden; }
+  .peb-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: var(--bg-card); border-bottom: 1px solid var(--border-subtle); }
+  .peb-logo { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white; flex-shrink: 0; }
+  .peb-name { font-size: 13.5px; font-weight: 700; color: var(--text); }
+  .peb-sub { font-size: 12px; color: var(--text-muted); }
+  .peb-body { padding: 14px 18px; background: var(--bg); }
+  .enrich-check { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 7px; cursor: pointer; transition: border-color 0.15s; }
+  .enrich-check:hover { border-color: var(--accent); }
+  .enrich-check.selected { border-color: var(--accent); background: var(--accent-dim); }
+  .check-box { width: 16px; height: 16px; border: 1.5px solid var(--border); border-radius: 3px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+  .enrich-check.selected .check-box { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* Upload */
+  .upload-zone { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 28px; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 12px; }
+  .upload-zone:hover, .upload-zone.has-file { border-color: var(--accent); background: var(--accent-dim); }
+
+  /* Results table */
+  .mp-results-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 16px; }
+  .mp-results-wrap table { margin: 0; min-width: 700px; }
+  .mp-results-wrap th { background: var(--bg); white-space: nowrap; }
+  .mp-provider-header th { font-size: 11px; padding: 8px 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .flag-yes { color: var(--green); font-weight: 600; }
+  .flag-no { color: var(--red); }
+  .table-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg); border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-muted); }
+
+  /* Computation mini-animation */
+  .comp-mini { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
+  .comp-provider-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); font-size: 13px; }
+  .comp-provider-row:last-child { border-bottom: none; }
+  .comp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .comp-dot.done { background: var(--green); }
+  .comp-dot.running { background: var(--accent); animation: pulse-dot 1s infinite; }
+  .comp-dot.pending { background: var(--border); }
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .step-panel { display: none; }
+  .step-panel.active { display: block; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="wordmark">Silent Compute</div><div class="sub">Data Enrichment</div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Consumer</div>
+      <a class="nav-item" href="home.html"><span class="icon">📊</span><span>My Enrichments</span></a>
+      <a class="nav-item" href="marketplace.html"><span class="icon">🏪</span><span>Marketplace</span></a>
+      <a class="nav-item active" href="multiparty.html"><span class="icon">🔀</span><span>Multi-party</span></a>
+      <a class="nav-item" href="reports.html"><span class="icon">📥</span><span>Downloads</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="billing.html"><span class="icon">💳</span><span>Billing</span></a>
+      <a class="nav-item" href="onboarding.html"><span class="icon">⚙️</span><span>Data Source</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="prd.html"><span class="icon">📋</span><span>PRD</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="../index.html" onclick="localStorage.clear()"><span class="icon">↩</span><span>Sign out</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">PM</div>
+        <div><div class="user-name">Priya Mehta</div><div class="user-role">NeoCredit Financial</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Multi-party Enrichment</div>
+        <div class="topbar-sub">Match your users against 2 or more data providers in a single run</div>
+      </div>
+      <div id="topbarRight"></div>
+    </div>
+
+    <div class="page-body">
+
+      <div class="info-box" style="margin-bottom:24px;" id="introBanner">
+        <span>🔀</span>
+        <div>
+          Select multiple providers and enrichment types. PSI runs separately against each provider's database, then computation runs on each matched set. You receive <strong>one combined result table</strong> — your Customer ID with enrichment columns from every provider.
+        </div>
+      </div>
+
+      <!-- Steps bar -->
+      <div class="steps-bar">
+        <div class="step-item" id="si1"><div class="step-num">1</div><span>Select providers</span></div>
+        <span class="step-sep">›</span>
+        <div class="step-item" id="si2"><div class="step-num">2</div><span>Choose enrichments</span></div>
+        <span class="step-sep">›</span>
+        <div class="step-item" id="si3"><div class="step-num">3</div><span>Upload data</span></div>
+        <span class="step-sep">›</span>
+        <div class="step-item" id="si4"><div class="step-num">4</div><span>Review & run</span></div>
+        <span class="step-sep">›</span>
+        <div class="step-item" id="si5"><div class="step-num">5</div><span>Results</span></div>
+      </div>
+
+      <!-- Step 1: Provider selection -->
+      <div class="step-panel" id="step1">
+        <div class="section-header" style="margin-bottom:16px;">
+          <div>
+            <div class="section-title">Select providers</div>
+            <div class="section-sub">Choose 2 or more providers with an active agreement. Pending and locked providers cannot be selected.</div>
+          </div>
+          <span id="selectedCount" class="badge badge-gray">0 selected</span>
+        </div>
+        <div class="prov-select-grid" id="provGrid"></div>
+        <button class="btn btn-primary" id="step1Btn" onclick="goStep(2)" disabled>Continue to Enrichments →</button>
+      </div>
+
+      <!-- Step 2: Enrichment selection -->
+      <div class="step-panel" id="step2">
+        <div class="section-header" style="margin-bottom:16px;">
+          <div>
+            <div class="section-title">Choose enrichments</div>
+            <div class="section-sub">Select the enrichment types you want from each provider. These are pre-agreed under your DSA.</div>
+          </div>
+        </div>
+        <div id="enrichBlocks"></div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
+          <button class="btn btn-primary" id="step2Btn" onclick="goStep(3)" disabled>Continue to Upload →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Upload -->
+      <div class="step-panel" id="step3">
+        <div class="section-header" style="margin-bottom:16px;">
+          <div>
+            <div class="section-title">Upload your user data</div>
+            <div class="section-sub">The same dataset is matched against all selected providers. Your data never leaves your environment.</div>
+          </div>
+        </div>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('mpFile').click()">
+          <div style="font-size:28px; margin-bottom:8px;">📂</div>
+          <div id="uploadText" style="font-size:14px; font-weight:600; color:var(--text);">Click to upload or drag and drop</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">CSV format · Identifier column: Phone / Email / Custom ID</div>
+          <input type="file" id="mpFile" accept=".csv" style="display:none;" onchange="onFile(event)">
+        </div>
+        <div class="info-box" style="margin-bottom:20px;">
+          <span>🔒</span>
+          <div>Only hashed identifiers are used for PSI matching against each provider. Raw user data stays in your environment throughout.</div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-secondary" onclick="goStep(2)">← Back</button>
+          <button class="btn btn-primary" id="step3Btn" onclick="goStep(4)" disabled>Continue to Review →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Review -->
+      <div class="step-panel" id="step4">
+        <div class="section-header" style="margin-bottom:16px;">
+          <div class="section-title">Review and run</div>
+          <div class="section-sub">PSI runs separately for each provider, then enrichment computation runs on each matched set.</div>
+        </div>
+        <div class="card" style="margin-bottom:16px;">
+          <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;">Run Summary</div>
+          <div id="reviewSummary"></div>
+        </div>
+        <div class="card" style="margin-bottom:20px; background:var(--accent-dim); border-color:rgba(13,148,136,0.25);">
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <span style="font-size:22px;">🔐</span>
+            <div style="font-size:13px; color:var(--text-secondary); line-height:1.7;">
+              <strong style="color:var(--accent);">What happens next</strong><br>
+              PSI runs against <span id="reviewProvCount">each provider</span> database separately. On matched users, computation runs for each provider's enrichments. You receive one combined table — your Customer ID with a column for every enrichment from every provider. Users not matched by a provider appear with <em>null</em> values for that provider's columns.
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-secondary" onclick="goStep(3)">← Back</button>
+          <button class="btn btn-primary" onclick="runComputation()">🔐 Run Multi-party Enrichment →</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Computation + Results -->
+      <div class="step-panel" id="step5">
+        <div id="compSection">
+          <div style="font-size:18px; font-weight:800; margin-bottom:6px;">Running computation</div>
+          <div style="font-size:13.5px; color:var(--text-muted); margin-bottom:20px;">PSI and enrichment computation running against each provider in sequence.</div>
+          <div class="comp-mini" id="compMini"></div>
+        </div>
+
+        <div id="resultsSection" style="display:none;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+            <div>
+              <div style="font-size:18px; font-weight:800; color:var(--text);">Multi-party Results</div>
+              <div style="font-size:13px; color:var(--text-muted); margin-top:2px;" id="resultsSub"></div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary" onclick="showToast('📥 Downloading combined CSV...')">↓ Export CSV</button>
+              <button class="btn btn-secondary" onclick="showToast('📄 Downloading audit certificate...')">↓ Audit Certificate</button>
+            </div>
+          </div>
+
+          <!-- Summary stat row -->
+          <div class="summary-banner" style="margin-bottom:20px;" id="resultStats"></div>
+
+          <!-- Combined table -->
+          <div class="card" style="padding:0; overflow:hidden; margin-bottom:16px;">
+            <div class="mp-results-wrap">
+              <table>
+                <thead id="mpHead"></thead>
+                <tbody id="mpBody"></tbody>
+              </table>
+              <div class="table-footer">
+                <span id="mpFooterCount"></span>
+                <button class="btn btn-sm btn-secondary" onclick="showToast('📥 Downloading full CSV...')">↓ Full CSV</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="denied-card">
+            <div style="font-size:36px; margin-bottom:10px;">🔒</div>
+            <div style="font-size:16px; font-weight:800; color:var(--red); margin-bottom:6px;">Provider raw data — Access Denied</div>
+            <div style="font-size:13px; color:var(--text-muted);">You see enriched attributes for your matched users only. No provider's underlying database was exposed at any point.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .summary-banner { background: var(--accent-dim); border: 1px solid rgba(13,148,136,0.3); border-radius: var(--radius-lg); padding: 20px 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .sum-item { text-align: center; }
+  .sum-val { font-size: 22px; font-weight: 800; color: var(--accent); }
+  .sum-label { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+  .denied-card { background: var(--red-dim); border: 1px solid rgba(220,38,38,0.25); border-radius: var(--radius-lg); padding: 28px; text-align: center; }
+</style>
+
+<script src="../assets/demo-data.js"></script>
+<script>
+// State
+const selectedProviders = new Set();
+const selectedEnrichments = {};  // { providerId: Set of enrichmentIds }
+let fileReady = false;
+let currentStep = 1;
+
+// Only Active-agreement providers are selectable
+const ACTIVE_PROVIDERS = PROVIDERS.filter(p => p.agreementStatus === 'active');
+const ALL_PROVIDERS = PROVIDERS;
+
+function init() {
+  goStep(1);
+  renderProvGrid();
+}
+
+// ── Step navigation ─────────────────────────────────────────
+function goStep(n) {
+  currentStep = n;
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  [1,2,3,4,5].forEach(i => {
+    const el = document.getElementById('si' + i);
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  });
+  document.getElementById('introBanner').style.display = n > 1 ? 'none' : 'flex';
+  if (n === 2) renderEnrichBlocks();
+  if (n === 4) renderReview();
+}
+
+// ── Step 1: Provider grid ────────────────────────────────────
+function renderProvGrid() {
+  document.getElementById('provGrid').innerHTML = ALL_PROVIDERS.map(p => {
+    const isActive = p.agreementStatus === 'active';
+    const isSel = selectedProviders.has(p.id);
+    const statusNote = { active: '', pending: 'Agreement pending', request_access: 'No agreement' }[p.agreementStatus];
+    return `
+      <div class="prov-check-card ${isSel ? 'selected' : ''} ${!isActive ? 'locked' : ''}"
+           onclick="${isActive ? `toggleProvider('${p.id}')` : ''}">
+        <div class="prov-checkbox">${isSel ? '✓' : ''}</div>
+        <div class="prov-check-logo" style="background:${p.logoColor}">${p.logo}</div>
+        <div class="prov-check-name">${p.name}</div>
+        <div class="prov-check-meta">${{ banks:'Bank', telecom:'Telecom', payment_aggregators:'Payment Aggregator' }[p.category]} · ${p.coverage}</div>
+        ${!isActive ? `<div class="locked-badge">🔒 ${statusNote}</div>` : `<div class="locked-badge" style="background:var(--green-dim); color:var(--green);">✓ Agreement active</div>`}
+      </div>`;
+  }).join('');
+
+  const count = selectedProviders.size;
+  document.getElementById('selectedCount').textContent = `${count} selected`;
+  document.getElementById('selectedCount').className = count >= 2 ? 'badge badge-accent' : 'badge badge-gray';
+  document.getElementById('step1Btn').disabled = count < 2;
+}
+
+function toggleProvider(id) {
+  if (selectedProviders.has(id)) {
+    selectedProviders.delete(id);
+    delete selectedEnrichments[id];
+  } else {
+    selectedProviders.add(id);
+    selectedEnrichments[id] = new Set();
+  }
+  renderProvGrid();
+}
+
+// ── Step 2: Enrichment selection ─────────────────────────────
+function renderEnrichBlocks() {
+  const container = document.getElementById('enrichBlocks');
+  container.innerHTML = [...selectedProviders].map(pid => {
+    const prov = PROVIDERS.find(p => p.id === pid);
+    if (!prov) return '';
+    const sel = selectedEnrichments[pid] || new Set();
+    const enrichRows = prov.enrichments.map(e => `
+      <div class="enrich-check ${sel.has(e.id) ? 'selected' : ''}" onclick="toggleEnrich('${pid}','${e.id}')">
+        <div class="check-box">${sel.has(e.id) ? '✓' : ''}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px; font-weight:600; color:var(--text);">${e.name} <span style="font-size:16px;">${e.icon}</span></div>
+          <div style="font-size:12px; color:var(--text-muted);">${e.desc}</div>
+          <div style="font-size:11.5px; color:var(--accent); margin-top:2px;">${e.example}</div>
+        </div>
+      </div>`).join('');
+    return `
+      <div class="provider-enrich-block">
+        <div class="peb-header">
+          <div class="peb-logo" style="background:${prov.logoColor}">${prov.logo}</div>
+          <div>
+            <div class="peb-name">${prov.name}</div>
+            <div class="peb-sub">${prov.enrichments.length} enrichments available · DSA ${prov.contractRef}</div>
+          </div>
+          <span class="badge badge-green" style="margin-left:auto;">${sel.size} selected</span>
+        </div>
+        <div class="peb-body">${enrichRows}</div>
+      </div>`;
+  }).join('');
+  updateStep2Btn();
+}
+
+function toggleEnrich(pid, eid) {
+  if (!selectedEnrichments[pid]) selectedEnrichments[pid] = new Set();
+  const s = selectedEnrichments[pid];
+  if (s.has(eid)) s.delete(eid); else s.add(eid);
+  renderEnrichBlocks();
+}
+
+function updateStep2Btn() {
+  const total = [...selectedProviders].reduce((acc, pid) => acc + (selectedEnrichments[pid]?.size || 0), 0);
+  document.getElementById('step2Btn').disabled = total === 0;
+}
+
+// ── Step 3: Upload ───────────────────────────────────────────
+function onFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  fileReady = true;
+  const zone = document.getElementById('uploadZone');
+  zone.classList.add('has-file');
+  document.getElementById('uploadText').textContent = `✓ ${file.name} (${(file.size/1024).toFixed(0)} KB)`;
+  document.getElementById('step3Btn').removeAttribute('disabled');
+  showToast('✅ File loaded — continue to review');
+}
+
+// ── Step 4: Review ───────────────────────────────────────────
+function renderReview() {
+  const rows = [...selectedProviders].map(pid => {
+    const prov = PROVIDERS.find(p => p.id === pid);
+    const enrichNames = prov.enrichments.filter(e => selectedEnrichments[pid]?.has(e.id)).map(e => e.name);
+    return `
+      <div style="display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--border-subtle);">
+        <div class="prov-check-logo" style="background:${prov.logoColor}; width:28px; height:28px; border-radius:6px; font-size:10px; flex-shrink:0;">${prov.logo}</div>
+        <div style="flex:1;">
+          <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:4px;">${prov.name}</div>
+          <div class="chip-row">${enrichNames.map(n => `<span class="chip">${n}</span>`).join('')}</div>
+        </div>
+        <span class="badge badge-green">${enrichNames.length} enrichment${enrichNames.length > 1 ? 's' : ''}</span>
+      </div>`;
+  }).join('');
+
+  const totalEnrich = [...selectedProviders].reduce((a, pid) => a + (selectedEnrichments[pid]?.size || 0), 0);
+  document.getElementById('reviewSummary').innerHTML = `
+    <div style="display:flex; gap:24px; margin-bottom:16px;">
+      <div><div style="font-size:11px; color:var(--text-muted);">Providers</div><div style="font-size:18px; font-weight:800; color:var(--accent);">${selectedProviders.size}</div></div>
+      <div><div style="font-size:11px; color:var(--text-muted);">Total enrichments</div><div style="font-size:18px; font-weight:800; color:var(--text);">${totalEnrich}</div></div>
+      <div><div style="font-size:11px; color:var(--text-muted);">Your data</div><div style="font-size:14px; font-weight:600; color:var(--text-secondary);">Uploaded CSV</div></div>
+    </div>
+    ${rows}`;
+  document.getElementById('reviewProvCount').textContent = `${selectedProviders.size} provider`;
+}
+
+// ── Step 5: Computation ──────────────────────────────────────
+function runComputation() {
+  goStep(5);
+  const provList = [...selectedProviders].map(pid => PROVIDERS.find(p => p.id === pid));
+
+  // Build computation status rows
+  document.getElementById('compMini').innerHTML = `
+    <div style="font-size:13px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;">Computation Progress</div>
+    ${provList.map((prov, i) => `
+      <div class="comp-provider-row" id="comprow-${prov.id}">
+        <div class="comp-dot pending" id="cdot-${prov.id}"></div>
+        <div class="prov-check-logo" style="background:${prov.logoColor}; width:24px; height:24px; border-radius:5px; font-size:9px; flex-shrink:0;">${prov.logo}</div>
+        <div style="flex:1;">
+          <div style="font-weight:600; color:var(--text);">${prov.name}</div>
+          <div style="font-size:12px; color:var(--text-muted);" id="cstatus-${prov.id}">Waiting...</div>
+        </div>
+        <span class="badge badge-gray" id="cbadge-${prov.id}">—</span>
+      </div>`).join('')}
+    <div style="margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">
+        <span>Overall progress</span>
+        <span id="overallPct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="overallBar" style="width:0%"></div></div>
+    </div>`;
+
+  // Animate sequentially per provider
+  const MOCK_MATCHES = { 'bureau-id': 2847, 'hdfc-data': 5614, 'payu-insights': 2190 };
+  const DEFAULT_MATCH = 1800;
+  let idx = 0;
+
+  function runNext() {
+    if (idx >= provList.length) {
+      setTimeout(showResults, 600);
+      return;
+    }
+    const prov = provList[idx];
+    const dot = document.getElementById(`cdot-${prov.id}`);
+    const status = document.getElementById(`cstatus-${prov.id}`);
+    const badge = document.getElementById(`cbadge-${prov.id}`);
+
+    dot.className = 'comp-dot running';
+    status.textContent = 'PSI running...';
+    badge.textContent = '...';
+    badge.className = 'badge badge-yellow';
+
+    setTimeout(() => {
+      status.textContent = 'Enrichment computation...';
+      badge.textContent = 'Computing';
+    }, 900);
+
+    setTimeout(() => {
+      const matched = MOCK_MATCHES[prov.id] || DEFAULT_MATCH;
+      dot.className = 'comp-dot done';
+      status.textContent = `Complete — ${matched.toLocaleString()} matched`;
+      badge.textContent = '✓ Done';
+      badge.className = 'badge badge-green';
+      idx++;
+      const pct = Math.round((idx / provList.length) * 100);
+      document.getElementById('overallPct').textContent = pct + '%';
+      document.getElementById('overallBar').style.width = pct + '%';
+      setTimeout(runNext, 300);
+    }, 2000);
+  }
+
+  runNext();
+}
+
+function showResults() {
+  document.getElementById('compSection').style.display = 'none';
+  document.getElementById('resultsSection').style.display = 'block';
+
+  const provList = [...selectedProviders].map(pid => PROVIDERS.find(p => p.id === pid));
+  const MOCK_MATCHES = { 'bureau-id': 2847, 'hdfc-data': 5614, 'payu-insights': 2190 };
+  const DEFAULT_MATCH = 1800;
+  const totalMatched = provList.reduce((a, p) => Math.max(a, MOCK_MATCHES[p.id] || DEFAULT_MATCH), 0);
+  const totalEnrich = [...selectedProviders].reduce((a, pid) => a + (selectedEnrichments[pid]?.size || 0), 0);
+
+  document.getElementById('resultsSub').textContent =
+    `${provList.length} providers · ${totalEnrich} enrichments · ${totalMatched.toLocaleString()} users in combined output`;
+
+  document.getElementById('resultStats').innerHTML = `
+    <div class="sum-item"><div class="sum-val">${totalMatched.toLocaleString()}</div><div class="sum-label">Users in output</div></div>
+    <div class="sum-item"><div class="sum-val">5,000</div><div class="sum-label">Input records</div></div>
+    <div class="sum-item"><div class="sum-val">${provList.length}</div><div class="sum-label">Providers matched</div></div>
+    <div class="sum-item"><div class="sum-val">${totalEnrich}</div><div class="sum-label">Enrichment columns</div></div>`;
+
+  // Build column headers grouped by provider
+  const provGroups = provList.map(prov => {
+    const enrichIds = [...(selectedEnrichments[prov.id] || [])];
+    const enrichObjs = prov.enrichments.filter(e => enrichIds.includes(e.id));
+    return { prov, enrichObjs };
+  }).filter(g => g.enrichObjs.length > 0);
+
+  const provHeaderRow = `<tr class="mp-provider-header">
+    <th style="border-right:1px solid var(--border);">Customer ID</th>
+    ${provGroups.map(g => `<th colspan="${g.enrichObjs.length}" style="background:${g.prov.logoColor}18; color:${g.prov.logoColor}; border-right:1px solid var(--border);">${g.prov.name}</th>`).join('')}
+  </tr>`;
+
+  const enrichHeaderRow = `<tr>
+    <th style="border-right:1px solid var(--border);">—</th>
+    ${provGroups.map(g => g.enrichObjs.map((e,i) => `<th ${i === g.enrichObjs.length - 1 ? 'style="border-right:1px solid var(--border);"' : ''}>${e.name}</th>`).join('')).join('')}
+  </tr>`;
+
+  document.getElementById('mpHead').innerHTML = provHeaderRow + enrichHeaderRow;
+
+  // Generate mock rows
+  let seed = 99;
+  function rand() { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return Math.abs(seed) / 0x7fffffff; }
+  function pickFrom(opts) { return opts[Math.floor(rand() * opts.length)]; }
+
+  const PREVIEW = 50;
+  const rows = [];
+  for (let i = 0; i < PREVIEW; i++) {
+    const cid = `NC-${String(Math.floor(rand() * 90000) + 10000)}`;
+    const cells = provGroups.map(g => {
+      const matched = rand() > 0.25; // ~75% chance each provider matched this user
+      return g.enrichObjs.map(e => {
+        if (!matched) return { val: '—', cls: '' };
+        const opts = e.example.split(' / ').map(s => s.trim().replace(/^[<>]/,''));
+        const val = pickFrom(opts);
+        let cls = '';
+        if (/^yes$/i.test(val) || /active/i.test(val) || /post.paid/i.test(val)) cls = 'flag-yes';
+        else if (/^no$/i.test(val) || /not detected/i.test(val) || /pre.paid/i.test(val)) cls = 'flag-no';
+        return { val, cls };
+      });
+    });
+    rows.push({ cid, cells });
+  }
+
+  document.getElementById('mpBody').innerHTML = rows.map(r => `
+    <tr>
+      <td style="font-family:monospace; font-weight:600; color:var(--text); border-right:1px solid var(--border);">${r.cid}</td>
+      ${r.cells.map((group, gi) => group.map((c, ci) => `<td class="${c.cls}" ${ci === group.length - 1 ? 'style="border-right:1px solid var(--border);"' : ''}>${c.val}</td>`).join('')).join('')}
+    </tr>`).join('');
+
+  document.getElementById('mpFooterCount').textContent =
+    `Showing ${PREVIEW} of ${totalMatched.toLocaleString()} matched users · — indicates user not found in that provider's database`;
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast hidden'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+init();
+</script>
+</body>
+</html>

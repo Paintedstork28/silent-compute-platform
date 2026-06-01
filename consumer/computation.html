@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computation Running — Silent Compute</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+  .computation-wrap { max-width: 780px; margin: 0 auto; padding: 40px 20px; }
+  .phase-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
+  .phase-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  .phase-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 32px; }
+  .psi-visual {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 32px; margin-bottom: 24px; position: relative; overflow: hidden;
+  }
+  .psi-sides { display: grid; grid-template-columns: 1fr 60px 1fr; gap: 12px; align-items: center; margin-bottom: 24px; }
+  .psi-side { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .psi-side-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .psi-side-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .psi-side-count { font-size: 24px; font-weight: 800; color: var(--accent); }
+  .psi-side-label { font-size: 11px; color: var(--text-muted); }
+  .psi-side-rows { margin-top: 10px; }
+  .blurred-row { height: 8px; background: var(--border); border-radius: 4px; margin-bottom: 5px; opacity: 0.6; }
+  .blurred-row:nth-child(2) { width: 80%; }
+  .blurred-row:nth-child(3) { width: 65%; }
+  .blurred-row:nth-child(4) { width: 90%; }
+  .psi-center { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .psi-arrow { font-size: 20px; color: var(--accent); animation: bounce 1s infinite; }
+  @keyframes bounce { 0%,100%{transform:translateX(0)} 50%{transform:translateX(4px)} }
+  .packet {
+    position: absolute; font-size: 10px; font-family: monospace;
+    color: var(--accent); opacity: 0; background: var(--bg-card);
+    padding: 2px 6px; border-radius: 3px; border: 1px solid var(--accent);
+    white-space: nowrap; pointer-events: none;
+  }
+  .status-steps { margin-top: 20px; }
+  .status-step { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+  .status-step:last-child { border-bottom: none; }
+  .step-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; border: 2px solid var(--border); color: var(--text-muted); }
+  .step-icon.done { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+  .step-icon.running { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); animation: spin 1.5s linear infinite; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .step-icon.pending { opacity: 0.4; }
+  .step-text { font-size: 13.5px; color: var(--text-secondary); }
+  .step-text.done { color: var(--green); font-weight: 600; }
+  .step-text.running { color: var(--text); font-weight: 600; }
+  .step-time { margin-left: auto; font-size: 11.5px; color: var(--text-muted); font-family: monospace; }
+  .psi-result-banner {
+    background: var(--green-dim); border: 1px solid rgba(63,185,80,0.3);
+    border-radius: var(--radius); padding: 16px 20px;
+    display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
+  }
+  .psi-match-num { font-size: 32px; font-weight: 800; color: var(--green); }
+  .psi-match-label { font-size: 13px; color: var(--text-secondary); }
+  .mpc-progress { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 24px; }
+  .mpc-round { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .mpc-round-label { font-size: 13px; color: var(--text-secondary); }
+  .mpc-round-num { font-size: 13px; font-weight: 700; color: var(--accent); font-family: monospace; }
+  .encrypted-log { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin-top: 16px; font-family: monospace; font-size: 10.5px; color: var(--text-muted); height: 80px; overflow: hidden; position: relative; }
+  .encrypted-log::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 30px; background: linear-gradient(transparent, var(--bg)); }
+  .log-line { margin-bottom: 3px; }
+  .counter-row { display: flex; gap: 24px; margin-top: 20px; }
+  .counter-item { text-align: center; }
+  .counter-val { font-size: 20px; font-weight: 700; color: var(--accent); font-family: monospace; }
+  .counter-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .phase-done { display: none; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="wordmark">Silent Compute</div>
+      <div class="sub">Data Enrichment</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Consumer</div>
+      <a class="nav-item" href="home.html"><span class="icon">📊</span><span>My Enrichments</span></a>
+      <a class="nav-item active" href="marketplace.html"><span class="icon">🏪</span><span>Marketplace</span></a>
+      <a class="nav-item" href="reports.html"><span class="icon">📥</span><span>Downloads</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="billing.html"><span class="icon">💳</span><span>Billing</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="prd.html"><span class="icon">📋</span><span>PRD</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="../index.html" onclick="localStorage.clear()"><span class="icon">↩</span><span>Sign out</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">PM</div>
+        <div><div class="user-name">Priya Mehta</div><div class="user-role">NeoCredit Financial</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Computation Running</div>
+        <div class="topbar-sub" id="topbarSub">Initialising...</div>
+      </div>
+      <div class="badge badge-accent badge-dot" id="statusBadge">PSI Running</div>
+    </div>
+
+    <div class="page-body">
+      <div class="computation-wrap" style="max-width:100%;">
+
+        <!-- PSI Phase -->
+        <div id="psiPhase">
+          <div class="phase-label">Phase 1 of 2</div>
+          <div class="phase-title">🔐 Private Set Intersection</div>
+          <div class="phase-desc">Finding the overlap between your users and <span id="provName">the provider</span>'s network — without either side seeing the other's full list.</div>
+
+          <div class="psi-visual" id="psiVisual">
+            <div class="psi-sides">
+              <div class="psi-side">
+                <div class="psi-side-title">Your Data</div>
+                <div class="psi-side-name">NeoCredit Financial</div>
+                <div class="psi-side-count">5,000</div>
+                <div class="psi-side-label">input users</div>
+                <div class="psi-side-rows">
+                  <div class="blurred-row"></div><div class="blurred-row"></div><div class="blurred-row"></div><div class="blurred-row"></div>
+                </div>
+                <div style="margin-top:8px; font-size:10.5px; color:var(--accent);">🔒 Hashed identifiers only</div>
+              </div>
+              <div class="psi-center">
+                <div class="psi-arrow">→</div>
+                <div style="font-size:10px; color:var(--text-muted); text-align:center;">MPC<br>Protocol</div>
+                <div class="psi-arrow">←</div>
+              </div>
+              <div class="psi-side">
+                <div class="psi-side-title">Provider Network</div>
+                <div class="psi-side-name" id="provNameCard">Bureau ID</div>
+                <div class="psi-side-count" id="provCount">120M</div>
+                <div class="psi-side-label">registered users</div>
+                <div class="psi-side-rows">
+                  <div class="blurred-row"></div><div class="blurred-row"></div><div class="blurred-row"></div><div class="blurred-row"></div>
+                </div>
+                <div style="margin-top:8px; font-size:10.5px; color:var(--text-muted);">🔒 Raw data not exposed</div>
+              </div>
+            </div>
+
+            <div class="mpc-round" style="margin-bottom:12px;">
+              <span class="mpc-round-label">PSI protocol rounds</span>
+              <span class="mpc-round-num" id="psiRound">Round 0 / 4</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="psiProgress" style="width:0%"></div></div>
+
+            <div class="encrypted-log" id="psiLog">
+              <div class="log-line">Initialising OPRF-based PSI protocol...</div>
+            </div>
+          </div>
+
+          <div class="status-steps">
+            <div class="status-step" id="sstep1">
+              <div class="step-icon running" id="sicon1">↻</div>
+              <span class="step-text running">Hashing identifiers locally</span>
+              <span class="step-time" id="stime1">--</span>
+            </div>
+            <div class="status-step" id="sstep2">
+              <div class="step-icon pending" id="sicon2">2</div>
+              <span class="step-text" id="stext2">Exchanging encrypted hashes with provider</span>
+              <span class="step-time" id="stime2">--</span>
+            </div>
+            <div class="status-step" id="sstep3">
+              <div class="step-icon pending" id="sicon3">3</div>
+              <span class="step-text" id="stext3">Computing intersection</span>
+              <span class="step-time" id="stime3">--</span>
+            </div>
+            <div class="status-step" id="sstep4">
+              <div class="step-icon pending" id="sicon4">4</div>
+              <span class="step-text" id="stext4">PSI complete — overlap found</span>
+              <span class="step-time" id="stime4">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PSI Result Banner (shown after PSI) -->
+        <div id="psiResult" style="display:none;" class="psi-result-banner">
+          <div>
+            <div class="psi-match-num">2,847</div>
+            <div class="psi-match-label">of your 5,000 users found in provider network</div>
+          </div>
+          <div style="font-size:12.5px; color:var(--text-muted); flex:1;">
+            Neither side saw the other's full list. This was a Private Set Intersection — only the overlap count is revealed at this stage. Enrichment computation now runs on the matched set only.
+          </div>
+        </div>
+
+        <!-- MPC Phase -->
+        <div id="mpcPhase" style="display:none;">
+          <div class="phase-label">Phase 2 of 2</div>
+          <div class="phase-title">⚡ MPC Enrichment Computation</div>
+          <div class="phase-desc">Computing enrichment attributes on your 2,847 matched users. Raw data from the provider is never exposed.</div>
+
+          <div class="mpc-progress">
+            <div class="mpc-round">
+              <span class="mpc-round-label">Protocol</span>
+              <span style="font-size:13px; color:var(--text-secondary);" id="enrichNames">—</span>
+            </div>
+            <div class="mpc-round" style="margin-top:10px;">
+              <span class="mpc-round-label">MPC Rounds</span>
+              <span class="mpc-round-num" id="mpcRound">Round 0 / 6</span>
+            </div>
+            <div class="progress-bar" style="margin-top:10px;"><div class="progress-fill" id="mpcProgress" style="width:0%"></div></div>
+
+            <div class="counter-row">
+              <div class="counter-item"><div class="counter-val" id="ctrRecords">0</div><div class="counter-label">Records processed</div></div>
+              <div class="counter-item"><div class="counter-val" id="ctrElapsed">0.0s</div><div class="counter-label">Elapsed</div></div>
+              <div class="counter-item"><div class="counter-val" id="ctrLatency">--ms</div><div class="counter-label">Round latency</div></div>
+            </div>
+
+            <div class="encrypted-log" id="mpcLog">
+              <div class="log-line">Starting Garbled Circuit protocol...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Done state -->
+        <div id="donePhase" class="phase-done">
+          <div class="psi-result-banner" style="background:var(--accent-dim); border-color:rgba(45,212,191,0.3);">
+            <div style="font-size:32px;">✅</div>
+            <div>
+              <div style="font-size:18px; font-weight:800; color:var(--accent);">Computation Complete</div>
+              <div style="font-size:13px; color:var(--text-secondary); margin-top:4px;">2,847 users enriched · 4.2 seconds · Proof hash generated</div>
+            </div>
+            <button class="btn btn-primary" onclick="window.location.href='results.html'" style="margin-left:auto;">View Results →</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/demo-data.js"></script>
+<script>
+const PSI_LOGS = [
+  'Applying OPRF with 512-bit key material...',
+  'Round 1: Sending blinded hashes to provider node...',
+  'Round 1: Receiving provider evaluations... [3fa2b8c9...]',
+  'Round 2: Unblinding evaluations locally...',
+  'Round 2: Computing intersection set... [no raw data exchanged]',
+  'Round 3: Verifying protocol consistency...',
+  'Round 3: Hash: 7d3e1a2f 4c8b9e12 0f6a3d78...',
+  'Round 4: Finalising intersection count...',
+  'PSI complete. Overlap: 2,847 of 5,000. Proceeding to enrichment.'
+];
+
+const MPC_LOGS = [
+  'Initialising Garbled Circuit for income band classification...',
+  'Round 1: Garbler generating circuit for 2,847 records...',
+  'Round 1: OT extension — transmitting 12,847 wire labels...',
+  'Round 2: Evaluator computing garbled gates... [data encrypted]',
+  'Round 2: 847 records classified. Processing batch 2...',
+  'Round 3: Computing secondary enrichment attributes...',
+  'Round 3: Applying secure comparison protocol (GC-SFC)...',
+  'Round 4: Aggregating results — no raw values exposed...',
+  'Round 5: Generating output commitments...',
+  'Round 6: Finalising. Proof hash: a1b2c3d4e5f6...',
+  'Computation complete. Results ready.'
+];
+
+let pid, provider;
+
+function init() {
+  pid = localStorage.getItem('sl_run_provider') || 'bureau-id';
+  provider = PROVIDERS.find(p => p.id === pid) || PROVIDERS[0];
+  const enrichIds = JSON.parse(localStorage.getItem('sl_run_enrichments') || '[]');
+  const enrichNames = provider.enrichments.filter(e => enrichIds.includes(e.id)).map(e => e.name);
+
+  document.getElementById('provName').textContent = provider.name;
+  document.getElementById('provNameCard').textContent = provider.name;
+  document.getElementById('provCount').textContent = provider.coverage;
+  document.getElementById('topbarSub').textContent = `${provider.name} · ${enrichNames.length} enrichments`;
+  document.getElementById('enrichNames').textContent = enrichNames.join(', ') || 'Selected enrichments';
+
+  runPSI();
+}
+
+function appendLog(containerId, msg) {
+  const log = document.getElementById(containerId);
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.textContent = msg;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+function setStep(n, state) {
+  const icon = document.getElementById('sicon' + n);
+  const text = document.getElementById('stext' + n);
+  const time = document.getElementById('stime' + n);
+  icon.className = 'step-icon ' + state;
+  if (state === 'running') { icon.textContent = '↻'; text.className = 'step-text running'; }
+  else if (state === 'done') { icon.textContent = '✓'; text.className = 'step-text done'; time.textContent = (Math.random() * 0.4 + 0.2).toFixed(2) + 's'; }
+}
+
+function runPSI() {
+  let round = 0;
+  let logIdx = 0;
+  const totalRounds = 4;
+
+  const interval = setInterval(() => {
+    round++;
+    document.getElementById('psiRound').textContent = `Round ${round} / ${totalRounds}`;
+    document.getElementById('psiProgress').style.width = ((round / totalRounds) * 100) + '%';
+
+    if (logIdx < PSI_LOGS.length) {
+      appendLog('psiLog', PSI_LOGS[logIdx++]);
+      if (logIdx < PSI_LOGS.length) appendLog('psiLog', PSI_LOGS[logIdx++]);
+    }
+
+    if (round === 1) { setStep(1, 'done'); setStep(2, 'running'); }
+    if (round === 2) { setStep(2, 'done'); setStep(3, 'running'); }
+    if (round === 3) { setStep(3, 'done'); setStep(4, 'running'); }
+    if (round >= totalRounds) {
+      clearInterval(interval);
+      setStep(4, 'done');
+      setTimeout(showPSIResult, 600);
+    }
+  }, 900);
+}
+
+function showPSIResult() {
+  document.getElementById('psiResult').style.display = 'flex';
+  document.getElementById('statusBadge').textContent = 'MPC Running';
+  document.getElementById('mpcPhase').style.display = 'block';
+  runMPC();
+}
+
+function runMPC() {
+  let round = 0; let logIdx = 0; let records = 0;
+  const totalRounds = 6; const totalRecords = 2847;
+  const startTime = Date.now();
+
+  const elapsed = setInterval(() => {
+    const secs = ((Date.now() - startTime) / 1000).toFixed(1);
+    document.getElementById('ctrElapsed').textContent = secs + 's';
+  }, 100);
+
+  const interval = setInterval(() => {
+    round++;
+    document.getElementById('mpcRound').textContent = `Round ${round} / ${totalRounds}`;
+    document.getElementById('mpcProgress').style.width = ((round / totalRounds) * 100) + '%';
+    document.getElementById('ctrLatency').textContent = (Math.random() * 15 + 45).toFixed(0) + 'ms';
+
+    records = Math.min(totalRecords, Math.round((round / totalRounds) * totalRecords));
+    document.getElementById('ctrRecords').textContent = records.toLocaleString();
+
+    if (logIdx < MPC_LOGS.length) {
+      appendLog('mpcLog', MPC_LOGS[logIdx++]);
+      if (logIdx < MPC_LOGS.length) appendLog('mpcLog', MPC_LOGS[logIdx++]);
+    }
+
+    if (round >= totalRounds) {
+      clearInterval(interval); clearInterval(elapsed);
+      setTimeout(showDone, 800);
+    }
+  }, 700);
+}
+
+function showDone() {
+  document.getElementById('statusBadge').textContent = 'Complete';
+  document.getElementById('statusBadge').className = 'badge badge-green badge-dot';
+  const done = document.getElementById('donePhase');
+  done.style.display = 'block';
+  done.className = '';
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+  // Auto-redirect after 3s
+  setTimeout(() => { window.location.href = 'results.html'; }, 3500);
+}
+
+init();
+</script>
+</body>
+</html>

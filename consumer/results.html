@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Results — Silent Compute</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+  .result-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px;
+  }
+  .result-card-title { font-size: 15px; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+  .dist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+  .denied-card {
+    background: var(--red-dim); border: 1px solid rgba(248,81,73,0.25);
+    border-radius: var(--radius-lg); padding: 28px; text-align: center; margin-bottom: 16px;
+  }
+  .denied-icon { font-size: 36px; margin-bottom: 10px; }
+  .denied-title { font-size: 16px; font-weight: 800; color: var(--red); margin-bottom: 6px; }
+  .denied-sub { font-size: 13px; color: var(--text-muted); }
+  .proof-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
+  .proof-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); font-size: 12.5px; }
+  .proof-row:last-child { border-bottom: none; }
+  .proof-label { color: var(--text-muted); }
+  .proof-val { color: var(--text); font-family: monospace; font-size: 11.5px; text-align: right; word-break: break-all; max-width: 60%; }
+  .summary-banner {
+    background: var(--accent-dim); border: 1px solid rgba(45,212,191,0.3);
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    margin-bottom: 24px;
+  }
+  .sum-item { text-align: center; }
+  .sum-val { font-size: 22px; font-weight: 800; color: var(--accent); }
+  .sum-label { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+  .tab-btn { padding: 10px 20px; font-size: 13.5px; font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; border-top: none; border-left: none; border-right: none; transition: color 0.15s; }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn:hover { color: var(--text); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .audit-row { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-subtle); align-items: flex-start; }
+  .audit-row:last-child { border-bottom: none; }
+  .audit-time { font-size: 11.5px; color: var(--text-muted); font-family: monospace; flex-shrink: 0; width: 70px; }
+  .audit-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-top: 5px; flex-shrink: 0; }
+  .audit-event { font-size: 13px; color: var(--text-secondary); }
+  .audit-detail { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; font-family: monospace; }
+  .user-table-wrap { overflow-x: auto; margin-bottom: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+  .user-table-wrap table { margin: 0; }
+  .user-table-wrap th { background: var(--bg); position: sticky; top: 0; }
+  .flag-yes { color: var(--green); font-weight: 600; }
+  .flag-no { color: var(--red); }
+  .table-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg); border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-muted); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="wordmark">Silent Compute</div>
+      <div class="sub">Data Enrichment</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Consumer</div>
+      <a class="nav-item" href="home.html"><span class="icon">📊</span><span>My Enrichments</span></a>
+      <a class="nav-item active" href="marketplace.html"><span class="icon">🏪</span><span>Marketplace</span></a>
+      <a class="nav-item" href="reports.html"><span class="icon">📥</span><span>Downloads</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="billing.html"><span class="icon">💳</span><span>Billing</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="prd.html"><span class="icon">📋</span><span>PRD</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="../index.html" onclick="localStorage.clear()"><span class="icon">↩</span><span>Sign out</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">PM</div>
+        <div><div class="user-name">Priya Mehta</div><div class="user-role">NeoCredit Financial</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Enrichment Results</div>
+        <div class="topbar-sub" id="topbarSub">Loading...</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-secondary" onclick="downloadCSV()">↓ Export CSV</button>
+        <button class="btn btn-secondary" onclick="downloadCert()">↓ Audit Certificate</button>
+        <a href="home.html" class="btn btn-ghost">← My Enrichments</a>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Summary banner -->
+      <div class="summary-banner">
+        <div class="sum-item"><div class="sum-val" id="sumMatched">2,847</div><div class="sum-label">Users matched</div></div>
+        <div class="sum-item"><div class="sum-val" id="sumInput">5,000</div><div class="sum-label">Input records</div></div>
+        <div class="sum-item"><div class="sum-val" id="sumEnrich">2</div><div class="sum-label">Enrichments computed</div></div>
+        <div class="sum-item"><div class="sum-val">4.2s</div><div class="sum-label">Computation time</div></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('results', this)">Results</button>
+        <button class="tab-btn" onclick="switchTab('proof', this)">Privacy Proof</button>
+        <button class="tab-btn" onclick="switchTab('audit', this)">Audit Trail</button>
+      </div>
+
+      <!-- Results tab -->
+      <div class="tab-content active" id="tab-results">
+        <div id="distGrid" class="dist-grid"></div>
+
+        <!-- User-level table -->
+        <div class="result-card" style="margin-top:16px;">
+          <div class="result-card-title" style="margin-bottom:14px;">
+            👤 User-level Results
+            <span style="font-size:12px; font-weight:400; color:var(--text-muted); margin-left:8px;">Your Customer ID · one row per matched user</span>
+          </div>
+          <div class="user-table-wrap">
+            <table>
+              <thead id="userTableHead"></thead>
+              <tbody id="userTableBody"></tbody>
+            </table>
+            <div class="table-footer">
+              <span id="userTableCount"></span>
+              <button class="btn btn-sm btn-secondary" onclick="downloadCSV()">↓ Download full CSV</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="denied-card" style="margin-top:4px;">
+          <div class="denied-icon">🔒</div>
+          <div class="denied-title">Provider's raw data — Access Denied</div>
+          <div class="denied-sub">You can see enriched attributes for your matched users. The provider's underlying database is never exposed — not to you, not to Silence Laboratories, not to anyone.</div>
+        </div>
+      </div>
+
+      <!-- Proof tab -->
+      <div class="tab-content" id="tab-proof">
+        <div class="result-card">
+          <div class="result-card-title">🔐 Cryptographic Proof of Privacy</div>
+          <div class="proof-card">
+            <div class="proof-row"><span class="proof-label">Computation ID</span><span class="proof-val" id="proofId">--</span></div>
+            <div class="proof-row"><span class="proof-label">PSI Protocol</span><span class="proof-val">OPRF-based PSI (Pinkas et al.) · SHA-512</span></div>
+            <div class="proof-row"><span class="proof-label">MPC Protocol</span><span class="proof-val">Garbled Circuit (Yao) + Oblivious Transfer</span></div>
+            <div class="proof-row"><span class="proof-label">Proof hash</span><span class="proof-val" id="proofHash">--</span></div>
+            <div class="proof-row"><span class="proof-label">Timestamp</span><span class="proof-val" id="proofTs">--</span></div>
+            <div class="proof-row"><span class="proof-label">Consumer node</span><span class="proof-val">NODE-NC-2025-0041 · NeoCredit Financial</span></div>
+            <div class="proof-row"><span class="proof-label">Provider node</span><span class="proof-val" id="proofProvNode">--</span></div>
+            <div class="proof-row"><span class="proof-label">Data sharing agreement</span><span class="proof-val" id="proofDSA">--</span></div>
+            <div class="proof-row"><span class="proof-label">Raw provider data seen by consumer</span><span class="proof-val" style="color:var(--green); font-weight:700;">NONE — cryptographically guaranteed</span></div>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:16px;">
+            <button class="btn btn-secondary" onclick="downloadCert()">↓ Download Audit Certificate</button>
+            <button class="btn btn-ghost" onclick="showToast('✅ Proof hash verified on-chain')">Verify Proof</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit tab -->
+      <div class="tab-content" id="tab-audit">
+        <div class="result-card">
+          <div class="result-card-title">📋 Immutable Audit Trail</div>
+          <div id="auditTrail"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="../assets/demo-data.js"></script>
+<script>
+const COLORS = ['#2dd4bf','#38bdf8','#a78bfa','#fb923c','#4ade80','#f472b6'];
+
+function init() {
+  const runId = new URLSearchParams(window.location.search).get('run') || 'run-001';
+  const run = PAST_RUNS.find(r => r.id === runId) || PAST_RUNS[0];
+
+  document.getElementById('topbarSub').textContent = `${run.provider} · ${formatDate(run.date)}`;
+  document.getElementById('sumMatched').textContent = run.matchedRecords.toLocaleString();
+  document.getElementById('sumInput').textContent = run.inputRecords.toLocaleString();
+  document.getElementById('sumEnrich').textContent = run.enrichments.length;
+
+  const proofHash = 'a1b2c3d4e5f6' + Math.random().toString(36).slice(2, 14) + '...';
+  document.getElementById('proofId').textContent = run.id.toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
+  document.getElementById('proofHash').textContent = proofHash;
+  document.getElementById('proofTs').textContent = new Date(run.date).toISOString();
+  document.getElementById('proofProvNode').textContent = 'NODE-' + run.provider.replace(/ /g,'').toUpperCase().slice(0,8);
+  document.getElementById('proofDSA').textContent = PROVIDERS.find(p => p.name === run.provider)?.contractRef || '—';
+
+  renderDistributions(run);
+  renderUserTable(run);
+  renderAudit(run);
+}
+
+function renderDistributions(run) {
+  const grid = document.getElementById('distGrid');
+  grid.innerHTML = Object.entries(run.results).map(([enrichName, dist]) => {
+    const total = Object.values(dist).reduce((a, b) => a + b, 0);
+    const bars = Object.entries(dist).map(([label, count], i) => {
+      const pct = Math.round((count / total) * 100);
+      return `
+        <div class="dist-row">
+          <div class="dist-label">
+            <span class="dist-key">${label}</span>
+            <span class="dist-val">${count.toLocaleString()} <span style="color:var(--text-muted); font-weight:400;">(${pct}%)</span></span>
+          </div>
+          <div class="dist-bar"><div class="dist-fill" style="width:${pct}%; background:${COLORS[i % COLORS.length]};"></div></div>
+        </div>`;
+    }).join('');
+    return `
+      <div class="result-card">
+        <div class="result-card-title">${enrichName}</div>
+        ${bars}
+        <div style="margin-top:12px; font-size:11.5px; color:var(--text-muted);">Based on ${total.toLocaleString()} matched users</div>
+      </div>`;
+  }).join('');
+}
+
+function renderUserTable(run) {
+  const PREVIEW = 50;
+  const enrichNames = run.enrichments;
+  const distData = run.results;
+
+  // Build weighted option pools from the distribution data
+  const pools = {};
+  Object.entries(distData).forEach(([eName, dist]) => {
+    const options = [];
+    Object.entries(dist).forEach(([label, count]) => {
+      for (let i = 0; i < Math.round(count / 50); i++) options.push(label);
+    });
+    pools[eName] = options;
+  });
+
+  // Seeded pseudo-random so rows are stable on re-render
+  let seed = 42;
+  function rand() { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return Math.abs(seed) / 0x7fffffff; }
+  function pick(arr) { return arr[Math.floor(rand() * arr.length)]; }
+
+  // Generate preview rows
+  const prefix = run.provider.includes('HDFC') ? 'NC' : run.provider.includes('PayU') ? 'NC' : 'NC';
+  const rows = [];
+  for (let i = 0; i < Math.min(PREVIEW, run.matchedRecords); i++) {
+    const id = `${prefix}-${String(Math.floor(rand() * 90000) + 10000)}`;
+    const vals = enrichNames.map(e => {
+      const pool = pools[e];
+      return pool ? pick(pool) : '—';
+    });
+    rows.push({ id, vals });
+  }
+
+  // Render header
+  document.getElementById('userTableHead').innerHTML = `<tr>
+    <th>Customer ID</th>
+    ${enrichNames.map(e => `<th>${e}</th>`).join('')}
+  </tr>`;
+
+  // Render body — colour boolean-style values
+  function cellClass(v) {
+    if (/^yes$/i.test(v) || /active/i.test(v) || /post.paid/i.test(v)) return 'flag-yes';
+    if (/^no$/i.test(v) || /not detected/i.test(v) || /pre.paid/i.test(v)) return 'flag-no';
+    return '';
+  }
+
+  document.getElementById('userTableBody').innerHTML = rows.map(r => `
+    <tr>
+      <td style="font-family:monospace; font-weight:600; color:var(--text);">${r.id}</td>
+      ${r.vals.map(v => `<td class="${cellClass(v)}">${v}</td>`).join('')}
+    </tr>`).join('');
+
+  document.getElementById('userTableCount').textContent =
+    `Showing ${Math.min(PREVIEW, run.matchedRecords).toLocaleString()} of ${run.matchedRecords.toLocaleString()} matched users`;
+}
+
+function renderAudit(run) {
+  const d = run.date;
+  const events = [
+    { time: '09:00:00', event: 'Computation request initiated', detail: `Consumer: NeoCredit Financial · Provider: ${run.provider}` },
+    { time: '09:00:01', event: 'Agreement verified', detail: `DSA ${PROVIDERS.find(p => p.name === run.provider)?.contractRef || '—'} — status: Active` },
+    { time: '09:00:02', event: 'PSI protocol initiated', detail: 'OPRF-based PSI · SHA-512 · 4 protocol rounds' },
+    { time: '09:00:04', event: 'PSI complete', detail: `Intersection: ${run.matchedRecords} of ${run.inputRecords} input records` },
+    { time: '09:00:05', event: 'MPC enrichment computation started', detail: `Enrichments: ${run.enrichments.join(', ')}` },
+    { time: '09:00:09', event: 'Computation complete', detail: `Proof hash: a1b2c3d4e5f6... · All ${run.enrichments.length} enrichments computed` },
+    { time: '09:00:09', event: 'Results delivered to consumer', detail: 'Aggregated distributions only — no raw provider data included' },
+    { time: '09:00:09', event: 'Audit record sealed', detail: 'Immutable · Cryptographically timestamped' }
+  ];
+  document.getElementById('auditTrail').innerHTML = events.map(e => `
+    <div class="audit-row">
+      <div class="audit-time">${e.time}</div>
+      <div class="audit-dot"></div>
+      <div>
+        <div class="audit-event">${e.event}</div>
+        <div class="audit-detail">${e.detail}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function formatDate(d) {
+  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function downloadCSV() { showToast('📥 Downloading results CSV...'); }
+function downloadCert() { showToast('📄 Downloading audit certificate (PDF)...'); }
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast hidden'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+init();
+</script>
+</body>
+</html>

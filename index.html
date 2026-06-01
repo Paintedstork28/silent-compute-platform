@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Silent Compute — Data Enrichment Platform</title>
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg); }
+  .login-wrap { width: 100%; max-width: 420px; padding: 20px; }
+  .login-logo { text-align: center; margin-bottom: 36px; }
+  .login-logo .sl-mark { font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+  .login-logo .sl-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .login-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; }
+  .login-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .login-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+  input {
+    width: 100%; padding: 10px 14px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--text);
+    font-size: 13.5px; outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus { border-color: var(--accent); }
+  .demo-hint {
+    background: var(--accent-dim); border: 1px solid rgba(45,212,191,0.25);
+    border-radius: var(--radius); padding: 10px 14px;
+    font-size: 12px; color: var(--accent);
+    margin-bottom: 20px;
+    cursor: pointer;
+  }
+  .demo-hint strong { display: block; margin-bottom: 2px; }
+  .role-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+  .role-btn {
+    padding: 12px; border: 1px solid var(--border);
+    border-radius: var(--radius); background: var(--bg);
+    cursor: pointer; text-align: center; transition: all 0.15s;
+  }
+  .role-btn:hover { border-color: var(--text-muted); }
+  .role-btn.active { border-color: var(--accent); background: var(--accent-dim); }
+  .role-btn .role-icon { font-size: 20px; margin-bottom: 6px; }
+  .role-btn .role-label { font-size: 12.5px; font-weight: 600; color: var(--text); }
+  .role-btn .role-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .role-btn.active .role-label { color: var(--accent); }
+  .login-btn { width: 100%; padding: 11px; background: var(--accent); color: #ffffff; font-weight: 700; font-size: 14px; border: none; border-radius: var(--radius); cursor: pointer; transition: background 0.15s; margin-top: 4px; }
+  .login-btn:hover { background: var(--accent-hover); }
+  .login-footer { text-align: center; margin-top: 20px; font-size: 12px; color: var(--text-muted); }
+  .divider-or { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--text-muted); font-size: 12px; }
+  .divider-or::before, .divider-or::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .security-note { display: flex; align-items: center; gap: 8px; justify-content: center; margin-top: 28px; font-size: 12px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-logo">
+    <div class="sl-mark">Silent Compute</div>
+    <div class="sl-sub">Privacy-preserving data enrichment platform</div>
+  </div>
+
+  <div class="login-card">
+    <div class="login-title">Sign in to your account</div>
+    <div class="login-sub">Access is provisioned by Silence Laboratories.</div>
+
+    <div class="role-toggle">
+      <div class="role-btn active" id="roleConsumer" onclick="selectRole('consumer')">
+        <div class="role-icon">🏢</div>
+        <div class="role-label">Data Consumer</div>
+        <div class="role-desc">Lender, fintech, risk team</div>
+      </div>
+      <div class="role-btn" id="roleProvider" onclick="selectRole('provider')">
+        <div class="role-icon">🗃️</div>
+        <div class="role-label">Data Provider</div>
+        <div class="role-desc">Bank, telecom, aggregator</div>
+      </div>
+    </div>
+
+    <div id="demoHint" class="demo-hint" onclick="fillDemo()">
+      <strong>Demo credentials — click to fill</strong>
+      <span id="hintText">consumer@neocredit.in &nbsp;·&nbsp; NeoCredit Financial</span>
+    </div>
+
+    <div class="form-group">
+      <label>Work email</label>
+      <input type="email" id="email" placeholder="you@company.com">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••">
+    </div>
+
+    <button class="login-btn" onclick="doLogin()">Sign in</button>
+  </div>
+
+  <div class="security-note">
+    🔒 End-to-end encrypted &nbsp;·&nbsp; SOC 2 Type II &nbsp;·&nbsp; MPC-native platform
+  </div>
+</div>
+
+<script>
+let selectedRole = 'consumer';
+
+function selectRole(role) {
+  selectedRole = role;
+  document.getElementById('roleConsumer').classList.toggle('active', role === 'consumer');
+  document.getElementById('roleProvider').classList.toggle('active', role === 'provider');
+
+  const hints = {
+    consumer: 'consumer@neocredit.in &nbsp;·&nbsp; NeoCredit Financial',
+    provider: 'provider@bureauId.in &nbsp;·&nbsp; Bureau ID'
+  };
+  document.getElementById('hintText').innerHTML = hints[role];
+}
+
+function fillDemo() {
+  const creds = {
+    consumer: { email: 'consumer@neocredit.in', pass: 'demo1234' },
+    provider: { email: 'provider@bureauId.in', pass: 'demo1234' }
+  };
+  document.getElementById('email').value = creds[selectedRole].email;
+  document.getElementById('password').value = creds[selectedRole].pass;
+}
+
+function doLogin() {
+  const email = document.getElementById('email').value;
+  const pass = document.getElementById('password').value;
+
+  if (!email || !pass) {
+    alert('Please enter your credentials.');
+    return;
+  }
+
+  localStorage.setItem('sl_role', selectedRole);
+  localStorage.setItem('sl_authed', '1');
+
+  if (selectedRole === 'consumer') {
+    window.location.href = 'consumer/home.html';
+  } else {
+    window.location.href = 'provider/dashboard.html';
+  }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>

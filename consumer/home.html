@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Enrichments — Silent Compute</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+  .quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+  .quick-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 18px 20px;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s;
+    text-decoration: none; display: block;
+  }
+  .quick-card:hover { border-color: var(--accent); background: var(--bg-hover); }
+  .quick-icon { font-size: 22px; margin-bottom: 10px; }
+  .quick-title { font-size: 13.5px; font-weight: 600; color: var(--text); }
+  .quick-desc { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+  /* Runs table */
+  .runs-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .runs-table th { text-align: left; padding: 10px 14px; background: var(--bg); border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text-muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .runs-table td { padding: 13px 14px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); vertical-align: middle; }
+  .runs-table td:first-child { font-weight: 600; color: var(--text); }
+  .runs-table tr:last-child td { border-bottom: none; }
+  .runs-table tbody tr { cursor: pointer; transition: background 0.1s; }
+  .runs-table tbody tr:hover { background: var(--bg-hover); }
+  .runs-table tbody tr.active { background: var(--accent-dim); }
+  .match-rate { font-size: 15px; font-weight: 700; color: var(--accent); }
+
+  /* Detail panel */
+  .detail-panel { border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg); background: var(--bg-card); padding: 20px 24px; display: none; }
+  .detail-panel.open { display: block; }
+  .detail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+  .detail-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .detail-value { font-size: 13.5px; color: var(--text); font-weight: 600; }
+  .detail-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .detail-actions { display: flex; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border-subtle); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="wordmark">Silent Compute</div>
+      <div class="sub">Data Enrichment</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Consumer</div>
+      <a class="nav-item active" href="home.html"><span class="icon">📊</span><span>My Enrichments</span></a>
+      <a class="nav-item" href="marketplace.html"><span class="icon">🏪</span><span>Marketplace</span></a>
+      <a class="nav-item" href="reports.html"><span class="icon">📥</span><span>Downloads</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="billing.html"><span class="icon">💳</span><span>Billing</span></a>
+      <a class="nav-item" href="onboarding.html"><span class="icon">⚙️</span><span>Data Source</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="prd.html"><span class="icon">📋</span><span>PRD</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="../index.html" onclick="localStorage.clear()"><span class="icon">↩</span><span>Sign out</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">PM</div>
+        <div>
+          <div class="user-name">Priya Mehta</div>
+          <div class="user-role">NeoCredit Financial</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">My Enrichments</div>
+        <div class="topbar-sub">NeoCredit Financial · Account NC-2025-0041</div>
+      </div>
+      <a href="marketplace.html" class="btn btn-primary">+ New Enrichment</a>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-card stat-accent">
+          <div class="stat-label">Total users enriched</div>
+          <div class="stat-value">10,651</div>
+          <div class="stat-sub">across 3 runs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active providers</div>
+          <div class="stat-value">3</div>
+          <div class="stat-sub">Bureau ID, HDFC, PayU</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Enrichments this month</div>
+          <div class="stat-value">2</div>
+          <div class="stat-sub">May 2026</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg match rate</div>
+          <div class="stat-value">59%</div>
+          <div class="stat-sub">across all runs</div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="quick-actions">
+        <a href="marketplace.html" class="quick-card">
+          <div class="quick-icon">🏪</div>
+          <div class="quick-title">New Enrichment</div>
+          <div class="quick-desc">Select data providers and enrichment types</div>
+        </a>
+        <a href="reports.html" class="quick-card">
+          <div class="quick-icon">📥</div>
+          <div class="quick-title">Download Results</div>
+          <div class="quick-desc">3 completed runs ready to download</div>
+        </a>
+        <a href="onboarding.html" class="quick-card">
+          <div class="quick-icon">🔌</div>
+          <div class="quick-title">Manage Data Source</div>
+          <div class="quick-desc">CSV upload or schema-based connector</div>
+        </a>
+      </div>
+
+      <!-- Runs table -->
+      <div class="section-header" style="margin-bottom:12px;">
+        <div>
+          <div class="section-title">Enrichment Runs</div>
+          <div class="section-sub">All computation runs, most recent first · Click any row for details</div>
+        </div>
+      </div>
+
+      <div style="border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;">
+        <table class="runs-table">
+          <thead>
+            <tr>
+              <th>Provider</th>
+              <th>Enrichment types</th>
+              <th>Records matched</th>
+              <th>Match rate</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="runsBody"></tbody>
+        </table>
+        <div class="detail-panel" id="detailPanel">
+          <div class="detail-grid" id="detailGrid"></div>
+          <div class="detail-actions" id="detailActions"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="../assets/demo-data.js"></script>
+<script>
+let activeRow = null;
+
+function fmtDate(d) {
+  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function renderRuns() {
+  const tbody = document.getElementById('runsBody');
+  if (!PAST_RUNS.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-muted);">No enrichment runs yet. Start by browsing the marketplace.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = PAST_RUNS.map(run => {
+    const matchPct = Math.round((run.matchedRecords / run.inputRecords) * 100);
+    return `
+      <tr id="row-${run.id}" onclick="toggleDetail('${run.id}')">
+        <td>
+          ${run.provider}
+          <span class="badge badge-gray" style="margin-left:6px; font-size:10.5px;">${run.category}</span>
+        </td>
+        <td style="font-size:12.5px; color:var(--text-muted);">${run.enrichments.join(' · ')}</td>
+        <td style="font-weight:700; color:var(--text);">${run.matchedRecords.toLocaleString()} <span style="font-weight:400; color:var(--text-muted); font-size:12px;">of ${run.inputRecords.toLocaleString()}</span></td>
+        <td><span class="match-rate">${matchPct}%</span></td>
+        <td>${fmtDate(run.date)}</td>
+        <td><span class="badge badge-green badge-dot">Completed</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function toggleDetail(id) {
+  const panel = document.getElementById('detailPanel');
+  const run = PAST_RUNS.find(r => r.id === id);
+
+  if (activeRow === id) {
+    panel.classList.remove('open');
+    document.getElementById('row-' + activeRow)?.classList.remove('active');
+    activeRow = null;
+    return;
+  }
+
+  if (activeRow) {
+    document.getElementById('row-' + activeRow)?.classList.remove('active');
+  }
+
+  activeRow = id;
+  document.getElementById('row-' + id).classList.add('active');
+
+  const matchPct = Math.round((run.matchedRecords / run.inputRecords) * 100);
+
+  document.getElementById('detailGrid').innerHTML = `
+    <div>
+      <div class="detail-label">Provider</div>
+      <div class="detail-value">${run.provider}</div>
+      <div class="detail-sub">${run.category}</div>
+    </div>
+    <div>
+      <div class="detail-label">Enrichment types</div>
+      <div class="detail-value" style="font-size:12.5px; line-height:1.7;">${run.enrichments.join('<br>')}</div>
+    </div>
+    <div>
+      <div class="detail-label">Records</div>
+      <div class="detail-value">${run.matchedRecords.toLocaleString()} matched</div>
+      <div class="detail-sub">${run.inputRecords.toLocaleString()} input · ${matchPct}% match rate</div>
+    </div>
+    <div>
+      <div class="detail-label">Run date</div>
+      <div class="detail-value">${fmtDate(run.date)}</div>
+      <div class="detail-sub"><span class="badge badge-green badge-dot">Completed</span></div>
+    </div>
+  `;
+
+  document.getElementById('detailActions').innerHTML = `
+    <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); downloadRun('${run.id}')">↓ Download CSV</button>
+    <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); viewRun('${run.id}')">View results →</button>
+  `;
+
+  panel.classList.add('open');
+}
+
+function viewRun(id) {
+  localStorage.setItem('sl_view_run', id);
+  window.location.href = 'results.html?run=' + id;
+}
+
+function downloadRun(id) {
+  showToast('📥 Downloading results CSV...');
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast hidden'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 2800);
+}
+
+renderRuns();
+</script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configure Enrichment — Silent Compute</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+  .steps-bar { display: flex; gap: 0; margin-bottom: 32px; }
+  .step-item { display: flex; align-items: center; gap: 8px; padding: 8px 16px 8px 0; font-size: 12.5px; color: var(--text-muted); }
+  .step-item.active { color: var(--accent); font-weight: 600; }
+  .step-item.done { color: var(--green); }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .step-sep { color: var(--border); margin-right: 16px; }
+  .config-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+  .enrichment-selector { margin-bottom: 24px; }
+  .enrich-check {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 8px; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .enrich-check:hover { border-color: var(--accent); }
+  .enrich-check.selected { border-color: var(--accent); background: var(--accent-dim); }
+  .check-box { width: 18px; height: 18px; border: 1.5px solid var(--border); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 11px; transition: all 0.15s; }
+  .enrich-check.selected .check-box { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    margin-bottom: 12px;
+  }
+  .upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: var(--accent-dim); }
+  .upload-zone .upload-icon { font-size: 32px; margin-bottom: 10px; }
+  .upload-zone .upload-text { font-size: 14px; font-weight: 600; color: var(--text); }
+  .upload-zone .upload-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .upload-zone.has-file { border-color: var(--green); background: var(--green-dim); }
+  .schema-option { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; margin-bottom: 8px; transition: border-color 0.15s; }
+  .schema-option:hover { border-color: var(--accent); }
+  .schema-option .opt-icon { font-size: 20px; }
+  .schema-option .opt-title { font-size: 13.5px; font-weight: 600; color: var(--text); }
+  .schema-option .opt-sub { font-size: 12px; color: var(--text-muted); }
+  .summary-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; position: sticky; top: 80px; }
+  .summary-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+  .summary-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; font-size: 12.5px; }
+  .summary-label { color: var(--text-muted); }
+  .summary-val { color: var(--text); font-weight: 500; text-align: right; max-width: 60%; }
+  .input-toggle { display: flex; gap: 6px; margin-bottom: 20px; }
+  .toggle-btn { flex: 1; padding: 9px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); cursor: pointer; text-align: center; font-size: 13px; color: var(--text-muted); transition: all 0.15s; }
+  .toggle-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+  select { width: 100%; padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-size: 13.5px; outline: none; }
+  select:focus { border-color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="wordmark">Silent Compute</div>
+      <div class="sub">Data Enrichment</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Consumer</div>
+      <a class="nav-item" href="home.html"><span class="icon">📊</span><span>My Enrichments</span></a>
+      <a class="nav-item active" href="marketplace.html"><span class="icon">🏪</span><span>Marketplace</span></a>
+      <a class="nav-item" href="reports.html"><span class="icon">📥</span><span>Downloads</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="billing.html"><span class="icon">💳</span><span>Billing</span></a>
+      <a class="nav-item" href="onboarding.html"><span class="icon">⚙️</span><span>Data Source</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="prd.html"><span class="icon">📋</span><span>PRD</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="../index.html" onclick="localStorage.clear()"><span class="icon">↩</span><span>Sign out</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">PM</div>
+        <div><div class="user-name">Priya Mehta</div><div class="user-role">NeoCredit Financial</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Configure Enrichment</div>
+        <div class="topbar-sub" id="topbarSub">Select enrichment types and upload your data</div>
+      </div>
+      <a href="marketplace.html" class="btn btn-secondary">← Back to Marketplace</a>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Steps -->
+      <div class="steps-bar">
+        <div class="step-item done" id="step0"><div class="step-num">✓</div><span>Provider</span></div>
+        <span class="step-sep">›</span>
+        <div class="step-item active" id="step1"><div class="step-num">2</div><span>Enrichments</span></div>
+        <span class="step-sep">›</span>
+        <div class="step-item" id="step2"><div class="step-num">3</div><span>Upload Data</span></div>
+        <span class="step-sep">›</span>
+        <div class="step-item" id="step3"><div class="step-num">4</div><span>Review & Run</span></div>
+      </div>
+
+      <div class="config-grid">
+        <!-- Left: main content -->
+        <div>
+          <!-- Step 1: Enrichment selection -->
+          <div id="stepEnrichments">
+            <div class="section-header" style="margin-bottom:16px;">
+              <div>
+                <div class="section-title">Select enrichment types</div>
+                <div class="section-sub">Choose the signals you want to compute. These are covered under your active DSA.</div>
+              </div>
+            </div>
+            <div id="enrichmentList" class="enrichment-selector"></div>
+            <button class="btn btn-primary" onclick="goToUpload()">Continue to Data Upload →</button>
+          </div>
+
+          <!-- Step 2: Data upload -->
+          <div id="stepUpload" style="display:none;">
+            <div class="section-header" style="margin-bottom:16px;">
+              <div>
+                <div class="section-title">Upload your data</div>
+                <div class="section-sub">Your data never leaves your environment. Only anonymised identifiers are used for PSI matching.</div>
+              </div>
+            </div>
+
+            <div class="input-toggle">
+              <button class="toggle-btn active" id="toggleUpload" onclick="switchInput('upload')">↑ Upload CSV</button>
+              <button class="toggle-btn" id="toggleSchema" onclick="switchInput('schema')">⬡ Use Schema Connector</button>
+            </div>
+
+            <div id="uploadPane">
+              <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="onDragOver(event)" ondrop="onDrop(event)">
+                <div class="upload-icon">📂</div>
+                <div class="upload-text" id="uploadText">Click to upload or drag and drop</div>
+                <div class="upload-sub">CSV format · Max 500MB · Must include an identifier column</div>
+                <input type="file" id="fileInput" accept=".csv" style="display:none;" onchange="onFileSelect(event)">
+              </div>
+
+              <div class="form-group" style="margin-top:16px;">
+                <label>Identifier column (used for PSI matching)</label>
+                <select id="identifierCol">
+                  <option value="">— Select column —</option>
+                  <option value="phone">Phone number</option>
+                  <option value="email">Email address</option>
+                  <option value="custom">Custom ID</option>
+                </select>
+              </div>
+
+              <div class="info-box" style="margin-top:12px;">
+                <span>🔒</span>
+                <div>Your raw data stays on your side. Only hashed identifiers are used during PSI. Silent Compute never receives your plaintext records.</div>
+              </div>
+            </div>
+
+            <div id="schemaPane" style="display:none;">
+              <div class="schema-option" onclick="downloadSchema()">
+                <div class="opt-icon">📄</div>
+                <div>
+                  <div class="opt-title">Download schema template</div>
+                  <div class="opt-sub">Get the required CSV format — populate it with your data and re-upload</div>
+                </div>
+                <button class="btn btn-sm btn-secondary" style="margin-left:auto;">↓ Download</button>
+              </div>
+              <div class="schema-option" style="cursor:default; opacity:0.6;">
+                <div class="opt-icon">🔗</div>
+                <div>
+                  <div class="opt-title">Live connector (enterprise)</div>
+                  <div class="opt-sub">Point to your internal database — no file upload needed. Available on enterprise plan.</div>
+                </div>
+                <span class="badge badge-accent" style="margin-left:auto;">Enterprise</span>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:20px;">
+              <button class="btn btn-secondary" onclick="goToEnrichments()">← Back</button>
+              <button class="btn btn-primary" id="continueToReview" onclick="goToReview()" disabled>Continue to Review →</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Review -->
+          <div id="stepReview" style="display:none;">
+            <div class="section-header" style="margin-bottom:16px;">
+              <div>
+                <div class="section-title">Review and run</div>
+                <div class="section-sub">A PSI check will run first to find the overlap, then computation runs on matched users only.</div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom:16px;">
+              <div style="font-size:13px; font-weight:700; margin-bottom:14px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Computation Summary</div>
+              <div id="reviewContent"></div>
+            </div>
+
+            <div class="card" style="margin-bottom:20px; background: var(--accent-dim); border-color: rgba(45,212,191,0.3);">
+              <div style="display:flex; gap:12px; align-items:flex-start;">
+                <div style="font-size:22px;">🔐</div>
+                <div>
+                  <div style="font-size:13.5px; font-weight:700; color:var(--accent); margin-bottom:4px;">How this works</div>
+                  <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.7;">
+                    1. <strong>PSI Check</strong> — Finds the overlap between your users and the provider's network without revealing either list.<br>
+                    2. <strong>MPC Computation</strong> — Enrichment attributes are computed on the matched set. Neither side sees the other's raw data.<br>
+                    3. <strong>Results</strong> — You receive aggregated distributions only. No raw provider data is ever returned.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-secondary" onclick="goToUpload()">← Back</button>
+              <button class="btn btn-primary" onclick="runComputation()">🔐 Run PSI Check + Computation →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Summary panel -->
+        <div>
+          <div class="summary-box">
+            <div class="summary-title">Run Summary</div>
+            <div class="summary-row">
+              <span class="summary-label">Provider</span>
+              <span class="summary-val" id="sumProvider">—</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Category</span>
+              <span class="summary-val" id="sumCategory">—</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Enrichments selected</span>
+              <span class="summary-val" id="sumEnrichments">0 selected</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Agreement ref</span>
+              <span class="summary-val" id="sumAgreement">—</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Your data</span>
+              <span class="summary-val" id="sumData">Not uploaded</span>
+            </div>
+            <div class="divider"></div>
+            <div class="info-box success" style="font-size:12px;">
+              <span>✅</span>
+              <div>Agreement active. Computation is authorised under DSA.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/demo-data.js"></script>
+<script>
+let provider = null;
+let selectedEnrichments = new Set();
+let fileUploaded = false;
+let currentStep = 1;
+
+function init() {
+  const pid = localStorage.getItem('sl_selected_provider') || 'bureau-id';
+  provider = PROVIDERS.find(p => p.id === pid) || PROVIDERS[0];
+
+  document.getElementById('topbarTitle').textContent = `Configure — ${provider.name}`;
+  document.getElementById('topbarSub').textContent = `${provider.enrichments.length} enrichment types available under your active agreement`;
+  document.getElementById('sumProvider').textContent = provider.name;
+  document.getElementById('sumCategory').textContent = { banks: 'Banks', telecom: 'Telecom', payment_aggregators: 'Payment Aggregators' }[provider.category];
+  document.getElementById('sumAgreement').textContent = provider.contractRef || '—';
+
+  renderEnrichments();
+}
+
+function renderEnrichments() {
+  const list = document.getElementById('enrichmentList');
+  list.innerHTML = provider.enrichments.map(e => `
+    <div class="enrich-check ${selectedEnrichments.has(e.id) ? 'selected' : ''}" onclick="toggleEnrichment('${e.id}')">
+      <div class="check-box">${selectedEnrichments.has(e.id) ? '✓' : ''}</div>
+      <div style="flex:1;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+          <span style="font-size:13.5px; font-weight:600; color:var(--text);">${e.name}</span>
+          <span style="font-size:16px;">${e.icon}</span>
+        </div>
+        <div style="font-size:12px; color:var(--text-muted);">${e.desc}</div>
+        <div style="font-size:11.5px; color:var(--accent); margin-top:3px;">${e.example}</div>
+      </div>
+      <div style="font-size:11px; color:var(--text-muted); flex-shrink:0;">${e.coverage}</div>
+    </div>
+  `).join('');
+  updateSummary();
+}
+
+function toggleEnrichment(id) {
+  if (selectedEnrichments.has(id)) selectedEnrichments.delete(id);
+  else selectedEnrichments.add(id);
+  renderEnrichments();
+}
+
+function updateSummary() {
+  document.getElementById('sumEnrichments').textContent = selectedEnrichments.size + ' selected';
+}
+
+function goToUpload() {
+  if (selectedEnrichments.size === 0) { showToast('⚠️ Select at least one enrichment type'); return; }
+  currentStep = 2;
+  document.getElementById('stepEnrichments').style.display = 'none';
+  document.getElementById('stepUpload').style.display = 'block';
+  document.getElementById('stepReview').style.display = 'none';
+  setStepActive(2);
+}
+
+function goToEnrichments() {
+  currentStep = 1;
+  document.getElementById('stepEnrichments').style.display = 'block';
+  document.getElementById('stepUpload').style.display = 'none';
+  document.getElementById('stepReview').style.display = 'none';
+  setStepActive(1);
+}
+
+function goToReview() {
+  currentStep = 3;
+  document.getElementById('stepEnrichments').style.display = 'none';
+  document.getElementById('stepUpload').style.display = 'none';
+  document.getElementById('stepReview').style.display = 'block';
+  setStepActive(3);
+  renderReview();
+}
+
+function setStepActive(n) {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('step' + i);
+    el.classList.remove('active', 'done');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  });
+  if (n > 1) { const s0 = document.getElementById('step0'); s0.classList.add('done'); }
+}
+
+function switchInput(type) {
+  document.getElementById('toggleUpload').classList.toggle('active', type === 'upload');
+  document.getElementById('toggleSchema').classList.toggle('active', type === 'schema');
+  document.getElementById('uploadPane').style.display = type === 'upload' ? 'block' : 'none';
+  document.getElementById('schemaPane').style.display = type === 'schema' ? 'block' : 'none';
+}
+
+function onDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag-over'); }
+
+function onDrop(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+}
+
+function onFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) handleFile(file);
+}
+
+function handleFile(file) {
+  const zone = document.getElementById('uploadZone');
+  zone.classList.remove('drag-over');
+  zone.classList.add('has-file');
+  document.getElementById('uploadText').textContent = `✓ ${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+  fileUploaded = true;
+  document.getElementById('sumData').textContent = file.name;
+  document.getElementById('continueToReview').removeAttribute('disabled');
+  showToast('✅ File loaded — select identifier column and continue');
+}
+
+function downloadSchema() {
+  const csv = 'phone_number,email,custom_id\n+91XXXXXXXXXX,user@email.com,USER001\n';
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'sl_enrichment_schema.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('📄 Schema template downloaded');
+}
+
+function renderReview() {
+  const names = provider.enrichments.filter(e => selectedEnrichments.has(e.id)).map(e => e.name);
+  document.getElementById('reviewContent').innerHTML = `
+    <div class="summary-row"><span class="summary-label">Provider</span><span class="summary-val">${provider.name}</span></div>
+    <div class="summary-row"><span class="summary-label">Agreement</span><span class="summary-val">${provider.contractRef}</span></div>
+    <div class="summary-row"><span class="summary-label">Enrichments</span><span class="summary-val">${names.join(', ')}</span></div>
+    <div class="summary-row"><span class="summary-label">Your data</span><span class="summary-val">${document.getElementById('sumData').textContent}</span></div>
+    <div class="summary-row"><span class="summary-label">Identifier</span><span class="summary-val">${document.getElementById('identifierCol').value || 'Phone number'}</span></div>
+  `;
+}
+
+function runComputation() {
+  localStorage.setItem('sl_run_provider', provider.id);
+  localStorage.setItem('sl_run_enrichments', JSON.stringify([...selectedEnrichments]));
+  window.location.href = 'computation.html';
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast hidden'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+init();
+</script>
+</body>
+</html>

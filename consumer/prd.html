@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Silent Compute Platform</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+  .prd-body { max-width: 820px; }
+  .prd-header { margin-bottom: 36px; padding-bottom: 24px; border-bottom: 2px solid var(--border); }
+  .prd-title { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+  .prd-meta { display: flex; gap: 16px; flex-wrap: wrap; }
+  .prd-meta-item { font-size: 12.5px; color: var(--text-muted); }
+  .prd-meta-item strong { color: var(--text-secondary); }
+  .prd-section { margin-bottom: 40px; }
+  .prd-section-num { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 4px; }
+  .prd-section-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 14px; }
+  .prd-body-text { font-size: 14px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 14px; }
+  .prd-body-text strong { color: var(--text); }
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-dim);
+    padding: 14px 18px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .callout.warning { border-color: var(--yellow); background: var(--yellow-dim); color: var(--text-secondary); }
+  .callout.open { border-color: var(--blue); background: var(--blue-dim); }
+  .callout strong { color: var(--text); }
+  .prd-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13.5px; }
+  .prd-table th { text-align: left; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border); font-weight: 700; color: var(--text-muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .prd-table td { padding: 11px 14px; border: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; line-height: 1.6; }
+  .prd-table td:first-child { font-weight: 600; color: var(--text); white-space: nowrap; }
+  .flow-diagram { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; }
+  .flow-row { display: flex; align-items: center; gap: 0; margin-bottom: 10px; }
+  .flow-row:last-child { margin-bottom: 0; }
+  .flow-node {
+    background: var(--bg-card); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 10px 16px;
+    font-size: 13px; font-weight: 600; color: var(--text);
+    text-align: center; flex-shrink: 0;
+  }
+  .flow-node.accent { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+  .flow-node.green { border-color: var(--green); background: var(--green-dim); color: var(--green); }
+  .flow-node.yellow { border-color: var(--yellow); background: var(--yellow-dim); color: var(--yellow); }
+  .flow-arrow { color: var(--text-muted); font-size: 18px; padding: 0 10px; flex-shrink: 0; }
+  .flow-label { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .flow-col { display: flex; flex-direction: column; align-items: center; }
+  .result-preview { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
+  .result-preview table { margin: 0; }
+  .result-preview th { background: var(--bg-card); }
+  .section-divider { height: 1px; background: var(--border); margin: 40px 0; }
+  .oq-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; background: var(--blue-dim); border: 1px solid rgba(37,99,235,0.25); border-radius: 20px; font-size: 11.5px; font-weight: 600; color: var(--blue); margin-bottom: 10px; }
+  .out-of-scope-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); font-size: 13.5px; color: var(--text-secondary); }
+  .out-of-scope-item:last-child { border-bottom: none; }
+  .out-of-scope-item::before { content: '✕'; color: var(--text-muted); flex-shrink: 0; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="wordmark">Silent Compute</div><div class="sub">Data Enrichment</div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Consumer</div>
+      <a class="nav-item" href="home.html"><span class="icon">📊</span><span>My Enrichments</span></a>
+      <a class="nav-item" href="marketplace.html"><span class="icon">🏪</span><span>Marketplace</span></a>
+      <a class="nav-item" href="reports.html"><span class="icon">📥</span><span>Downloads</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="billing.html"><span class="icon">💳</span><span>Billing</span></a>
+      <a class="nav-item" href="onboarding.html"><span class="icon">⚙️</span><span>Data Source</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item active" href="prd.html"><span class="icon">📋</span><span>PRD</span></a>
+      <div class="divider" style="margin: 8px 0;"></div>
+      <a class="nav-item" href="../index.html" onclick="localStorage.clear()"><span class="icon">↩</span><span>Sign out</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">PM</div>
+        <div><div class="user-name">Priya Mehta</div><div class="user-role">NeoCredit Financial</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Product Requirements Document</div>
+        <div class="topbar-sub">Silent Compute — Data Enrichment Platform · For engineering and design handoff</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <span class="badge badge-yellow">Draft</span>
+        <span class="badge badge-gray">v0.1 · May 2026</span>
+      </div>
+    </div>
+
+    <div class="page-body prd-body">
+
+      <!-- Header -->
+      <div class="prd-header">
+        <div class="prd-title">Silent Compute Platform</div>
+        <div class="prd-meta">
+          <div class="prd-meta-item"><strong>Owner:</strong> Ambika Pande, Product Lead</div>
+          <div class="prd-meta-item"><strong>Status:</strong> Draft for eng/design review</div>
+          <div class="prd-meta-item"><strong>Last updated:</strong> May 2026</div>
+          <div class="prd-meta-item"><strong>Prototype:</strong> This file</div>
+        </div>
+      </div>
+
+      <!-- 0. What this platform is and is not -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 0</div>
+        <div class="prd-section-title">What This Platform Is — and Is Not</div>
+
+        <div class="prd-body-text"><strong>The structure this platform is built for</strong></div>
+        <div class="prd-body-text">One demand party wants enrichment on their existing user base. That user base may be B2B or B2C. Multiple supply parties hold data on those users that is relevant to the enrichment query. The output is not just raw enrichment — it also includes computation of derived metrics. A supply party does not simply hand over a field value; they compute a result. For example: PayU matches against Swiggy's user base to determine share of wallet for Swiggy users — not just whether a user exists in PayU's database, but a computed signal derived from their transaction data.</div>
+        <div class="prd-body-text">Matching between the demand party's user list and the supply party's database happens either via <strong>direct identifier match</strong> (phone number, email) or <strong>fuzzy match</strong> on a shared attribute. Neither side sees the other's raw data at any point.</div>
+
+        <div class="prd-body-text" style="margin-top:20px;"><strong>Why this is a standalone platform — not a unified one across enrichment use cases</strong></div>
+        <div class="prd-body-text">SL's MPC infrastructure is applicable to multiple use cases beyond data enrichment — AML screening, freight matching, and others. A reasonable question is whether all of these should live in one platform. They should not, and the reason is straightforward: the buyer is not the same.</div>
+
+        <table class="prd-table" style="margin-bottom:20px;">
+          <thead><tr><th>Use case</th><th>Buyer</th><th>Who owns the UI</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Data enrichment</td>
+              <td>Product or data team at a fintech, lender, or super-app. Cares about match rate, signal quality, and speed of enrichment.</td>
+              <td>SL — there is no existing player to hand the interface to. This is the exception.</td>
+            </tr>
+            <tr>
+              <td>AML screening</td>
+              <td>Compliance officer or risk team, likely at a bank or regulated financial institution. Entirely different procurement cycle, regulatory requirements, and success criteria.</td>
+              <td>The existing player — a bank's compliance system. SL is infrastructure underneath.</td>
+            </tr>
+            <tr>
+              <td>Freight matching</td>
+              <td>Logistics operator or freight platform. Different vocabulary, different infrastructure expectations, different commercial model.</td>
+              <td>The existing player — the freight platform. SL is infrastructure underneath.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="prd-body-text">A single platform optimised for one of these buyers would actively feel wrong to the others. Designing for all three would mean designing well for none. Data enrichment is, for now, the only use case where SL owns the product surface directly — which is precisely what makes it the right candidate for a standalone platform.</div>
+
+        <div class="prd-body-text" style="margin-top:20px;"><strong>The Databricks question</strong></div>
+        <div class="prd-body-text">Databricks has a unified platform spanning a data lakehouse, clean rooms, dashboards, and apps — multiple products, one surface. If they can unify, why can't SL?</div>
+        <div class="callout">
+          Databricks can unify because all of their products share three things: <strong>one underlying primitive</strong> (the lakehouse — every product is a new way to use data that already lives there), <strong>one buyer persona</strong> (data engineers and data scientists, regardless of the tool), and <strong>one product surface</strong> (customers log into Databricks directly; no intermediary owns the UI). Adding a new Databricks product requires no new infrastructure contract and no new deployment model. The user is already there.
+        </div>
+        <div class="prd-body-text">Across SL's enrichment use cases, none of these three conditions hold. The buyer is different. The deployment context is different. And in AML and freight matching, SL is not the product surface — an existing operator is. Unification would create a platform that fits no buyer cleanly.</div>
+
+        <div class="prd-body-text" style="margin-top:20px;"><strong>Flexibility for the future</strong></div>
+        <div class="callout">
+          This is a deliberate decision for now — not a permanent constraint. If the market signals that buyers are converging, or that a unified surface creates a genuine advantage, the platform should be able to accommodate that. It is important that the architecture is built with enough flexibility that unification is a future option, not an impossibility. The decision today is to not unify prematurely.
+        </div>
+
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- 1. Why -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 1</div>
+        <div class="prd-section-title">Why We're Building This</div>
+        <div class="prd-body-text">
+          This platform is the product delivery layer for SL's <strong>independent data enrichment use case</strong>. It exists specifically where Silence Laboratories is connecting a <strong>demand partner</strong> (a lender, a fintech, a super-app) with a <strong>supply partner</strong> (a bank, a telecom operator, a payment aggregator) — neither of whom would share raw data with the other directly.
+        </div>
+        <div class="callout">
+          Illustrative pairings: <strong>Grab × telecom operator</strong>, <strong>PayU × Swiggy</strong>, <strong>a digital lender × HDFC Data Services</strong>. SL is the neutral infrastructure that makes the computation possible without either side seeing the other's data.
+        </div>
+        <div class="prd-body-text">
+          This is not a general-purpose MPC platform. It is scoped to: one or more demand partners matched with one or more supply partners, with pre-agreed enrichment queries, triggered via a product interface, with billing attached. The platform replaces a manual, email-driven coordination process.
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- 2. Problem -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 2</div>
+        <div class="prd-section-title">Problem This Platform Solves</div>
+        <div class="prd-body-text">Once demand and supply partners are commercially onboarded and agreements are signed, they currently have no self-serve interface to act on those agreements. The coordination to actually run a computation — selecting enrichments, sharing data, receiving outputs — is manual and slow.</div>
+        <div class="prd-body-text">The platform gives both sides a single place to:</div>
+        <table class="prd-table">
+          <thead><tr><th>Persona</th><th>What the platform lets them do</th></tr></thead>
+          <tbody>
+            <tr><td>Demand partner</td><td>Browse available supply partners, explore enrichment types covered under their agreement, upload or connect user data, trigger computation, receive enriched user-level output, view billing, download reports</td></tr>
+            <tr><td>Supply partner</td><td>Review and approve incoming computation requests, view the catalogue of agreed enrichments and their readiness status, monitor active computations, view earnings and billing</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- 3. How computation works -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 3</div>
+        <div class="prd-section-title">How Computation Works</div>
+        <div class="prd-body-text">Every enrichment run follows two sequential, cryptographically enforced steps:</div>
+
+        <div class="flow-diagram">
+          <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:18px;">Computation Flow</div>
+          <div class="flow-row">
+            <div class="flow-col">
+              <div class="flow-node">Demand partner<br><span style="font-size:11px; font-weight:400;">uploads user list</span></div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-col">
+              <div class="flow-node accent">Step 1: PSI<br><span style="font-size:11px; font-weight:400;">Private Set Intersection</span></div>
+              <div class="flow-label" style="text-align:center; margin-top:6px;">Neither side sees<br>the other's full list</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-col">
+              <div class="flow-node yellow">Matched set<br><span style="font-size:11px; font-weight:400;">overlap count revealed</span></div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-col">
+              <div class="flow-node accent">Step 2: MPC<br><span style="font-size:11px; font-weight:400;">Enrichment computation</span></div>
+              <div class="flow-label" style="text-align:center; margin-top:6px;">Runs on matched<br>users only</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-col">
+              <div class="flow-node green">Results delivered<br><span style="font-size:11px; font-weight:400;">to demand partner</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="prd-body-text"><strong>Step 1 — Private Set Intersection (PSI):</strong> The demand partner's user identifiers and the supply partner's database are intersected without either side seeing the other's raw data. The overlap count is revealed to both parties. The intersection set is used internally by the protocol to scope the MPC step — neither party independently learns which specific identifiers matched.</div>
+        <div class="prd-body-text"><strong>Step 2 — MPC enrichment computation:</strong> Enrichment queries run only on the matched set. The supply partner computes the agreed signals on their matched records. The demand partner receives one row per matched user — identified by their own internal Customer ID — with one column per enrichment showing the computed value or band.</div>
+
+        <div class="callout">
+          <strong>Privacy guarantee:</strong> The supply partner never sees the demand partner's Customer IDs. The demand partner never sees the supply partner's raw data. The output contains only what was pre-agreed in the DSA.
+        </div>
+
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px;">Result format — single supply partner (demand partner's view):</div>
+        <div class="result-preview">
+          <table class="prd-table" style="margin:0;">
+            <thead>
+              <tr><th>Customer ID</th><th colspan="2" style="background: rgba(13,148,136,0.06);">Bureau ID (Telecom)</th></tr>
+              <tr><th></th><th>Monthly Recharge Band</th><th>Pre / Post-Paid</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>NC-00412</td><td>₹200–500</td><td>Post-paid</td></tr>
+              <tr><td>NC-00891</td><td>&lt;₹200</td><td>Pre-paid</td></tr>
+              <tr><td>NC-01204</td><td>&gt;₹500</td><td>Post-paid</td></tr>
+              <tr><td style="color:var(--text-muted); font-style:italic;" colspan="3">... 2,844 more rows</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="prd-body-text" style="font-size:12.5px;">Customer ID is the demand partner's own internal identifier. It is never shared with the supply partner. The demand partner already knows these are their own users — showing their ID back to them is privacy-safe.</div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- 4. Architecture -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 4</div>
+        <div class="prd-section-title">Architecture — Node Setup and Computation Model</div>
+        <div class="prd-body-text">This section describes the infrastructure model underlying every enrichment computation. Understanding it is a prerequisite for node provisioning, SDK deployment, and reasoning about multi-party scale.</div>
+
+        <!-- Recommendation -->
+        <div class="callout" style="margin-bottom:28px;">
+          <strong>Recommended approach: Bilateral multi-party computation (Option A).</strong><br><br>
+          Node setup and SDK installation happen once, offline, when a partner onboards. After that, the platform is fully self-serve — demand partners can initiate computations against any active supply partner without any engineering involvement. Adding a new supply partner means one new node provisioned at onboarding; no existing nodes or sharings change.<br><br>
+          This model is validated by comparable platforms (e.g. ad targeting data platforms) that follow the same pattern: heavy offline onboarding once, then self-serve computation on top. Multi-party MPC (Option B) introduces additional complexity depending on the deployment model chosen. Three sub-options are documented below: a fixed 3-server model hosted by SL or a trusted third party (B1), a party-hosted node model with resharding implications (B2), and a homomorphic encryption model with no sharding (B3 — future roadmap). All three are documented below for reference.
+        </div>
+
+        <!-- ─────────────────────────────────────── -->
+        <!-- OPTION A: BILATERAL -->
+        <!-- ─────────────────────────────────────── -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+          <div style="background:var(--accent-dim); border:1px solid rgba(13,148,136,0.3); color:var(--accent); font-size:11.5px; font-weight:700; padding:3px 14px; border-radius:20px; letter-spacing:0.5px; text-transform:uppercase; white-space:nowrap;">Option A — Bilateral Model</div>
+          <div style="flex:1; height:1px; background:var(--border);"></div>
+        </div>
+
+        <div class="prd-body-text">Each computation is an independent 2-party protocol. Every party provisions their own persistent node once. The platform runs computations as bilateral pairs — A×B, A×C — and combines results at the end. Adding a new supply partner means adding a new node; no existing party re-provisions.</div>
+
+        <!-- A: 2-party -->
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px; margin-top:20px;">A1 — Two-party computation (1 demand, 1 supply)</div>
+        <div class="flow-diagram" style="margin-bottom:24px;">
+          <div style="display:grid; grid-template-columns:1fr 80px 1fr; gap:0; align-items:start;">
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; text-align:center;">Node A — Demand Partner</div>
+              <div class="flow-node" style="text-align:left; padding:14px 16px; margin-bottom:8px;">
+                <div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:6px;">Holds permanently:</div>
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· Share 1 of Party A's data (A₁)<br>· A's identifier list (stable between runs)</div>
+              </div>
+              <div class="flow-node" style="text-align:left; padding:14px 16px; border-color:var(--accent); background:var(--accent-dim);">
+                <div style="font-size:12px; font-weight:700; color:var(--accent); margin-bottom:6px;">Receives transiently per run:</div>
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· Share 1 of Party B's matched-user attributes (B₁)<br>· Cleared after computation completes</div>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding-top:60px; gap:6px;">
+              <div style="font-size:20px; color:var(--accent);">⇄</div>
+              <div style="font-size:10.5px; color:var(--text-muted); text-align:center;">PSI then<br>MPC</div>
+            </div>
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; text-align:center;">Node B — Supply Partner</div>
+              <div class="flow-node" style="text-align:left; padding:14px 16px; margin-bottom:8px;">
+                <div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:6px;">Holds permanently:</div>
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· Share 2 of Party B's data (B₂)<br>· B's full attribute database (refreshed on schedule)</div>
+              </div>
+              <div class="flow-node" style="text-align:left; padding:14px 16px; border-color:var(--accent); background:var(--accent-dim);">
+                <div style="font-size:12px; font-weight:700; color:var(--accent); margin-bottom:6px;">Receives transiently per run:</div>
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· Share 2 of Party A's identifier list (A₂)<br>· Cleared after computation completes</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:14px; font-size:12px; color:var(--text-muted); text-align:center;">Result is produced at Node A only. Node B never sees the output or Party A's Customer IDs.</div>
+        </div>
+
+        <!-- A: multi-supply -->
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px;">A2 — Multiple supply partners (1 demand, N supply)</div>
+        <div class="prd-body-text">When Party A runs against both B and C in the same job, two independent bilateral computations — A×B and A×C — run in parallel. Node A participates in both, handling each as an isolated context. Results are joined by the SL Orchestration node at the end.</div>
+
+        <div class="flow-diagram" style="margin-bottom:16px;">
+          <div style="display:grid; grid-template-columns:1fr 60px 1fr 60px 1fr; gap:0; align-items:center; margin-bottom:20px;">
+            <div class="flow-node accent" style="text-align:center; padding:12px;">Node A<br><span style="font-size:11px; font-weight:400;">Demand partner</span></div>
+            <div style="text-align:center; font-size:18px; color:var(--accent);">⇄</div>
+            <div class="flow-node" style="text-align:center; padding:12px;">Node B<br><span style="font-size:11px; font-weight:400;">Supply partner 1</span></div>
+            <div style="text-align:center;"></div>
+            <div></div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 60px 1fr 60px 1fr; gap:0; align-items:center;">
+            <div class="flow-node accent" style="text-align:center; padding:12px;">Node A<br><span style="font-size:11px; font-weight:400;">Same node, isolated context</span></div>
+            <div style="text-align:center; font-size:18px; color:var(--accent);">⇄</div>
+            <div></div>
+            <div style="text-align:center;"></div>
+            <div class="flow-node" style="text-align:center; padding:12px;">Node C<br><span style="font-size:11px; font-weight:400;">Supply partner 2</span></div>
+          </div>
+          <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border-subtle); font-size:12.5px; color:var(--text-muted);">
+            A×B produces output columns from B. A×C produces output columns from C. SL's orchestration node joins both on Party A's Customer ID → one combined result table.
+          </div>
+        </div>
+
+        <!-- Multi-party output format -->
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px;">Combined output format</div>
+        <div class="prd-body-text">A user needs to match at least one supply partner to appear in the output — not all. Where a user matched Provider B but not Provider C, their Provider C columns are shown as N/A. The output is always one row per Customer ID, with all provider columns present.</div>
+
+        <div class="result-preview" style="margin-bottom:10px;">
+          <table class="prd-table" style="margin:0;">
+            <thead>
+              <tr>
+                <th rowspan="2">Customer ID</th>
+                <th colspan="2" style="background:rgba(13,148,136,0.06);">Bureau ID (Provider B)</th>
+                <th colspan="2" style="background:rgba(37,99,235,0.06);">HDFC Data Services (Provider C)</th>
+              </tr>
+              <tr>
+                <th style="background:rgba(13,148,136,0.04);">Pre/Post-Paid</th>
+                <th style="background:rgba(13,148,136,0.04);">ARPU Band</th>
+                <th style="background:rgba(37,99,235,0.04);">Income > ₹10k</th>
+                <th style="background:rgba(37,99,235,0.04);">EMI Active</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>NC-00412</td>
+                <td>Post-paid</td><td>₹200–500</td>
+                <td style="color:var(--green); font-weight:600;">Yes</td><td>No</td>
+              </tr>
+              <tr>
+                <td>NC-00891</td>
+                <td>Pre-paid</td><td>&lt;₹200</td>
+                <td style="color:var(--text-muted); font-style:italic;">N/A</td><td style="color:var(--text-muted); font-style:italic;">N/A</td>
+              </tr>
+              <tr>
+                <td>NC-01204</td>
+                <td style="color:var(--text-muted); font-style:italic;">N/A</td><td style="color:var(--text-muted); font-style:italic;">N/A</td>
+                <td style="color:var(--green); font-weight:600;">Yes</td><td>No</td>
+              </tr>
+              <tr>
+                <td>NC-01887</td>
+                <td style="color:var(--text-muted); font-style:italic;">N/A</td><td style="color:var(--text-muted); font-style:italic;">N/A</td>
+                <td style="color:var(--text-muted); font-style:italic;">N/A</td><td style="color:var(--text-muted); font-style:italic;">N/A</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="prd-body-text" style="font-size:12.5px; margin-bottom:20px;">NC-00891 matched Bureau ID but not HDFC — HDFC columns show N/A. NC-01204 matched HDFC but not Bureau ID — Bureau ID columns show N/A. NC-01887 matched neither provider and still appears with all N/A — the demand partner can filter these out on download. Every Customer ID in the input that matched at least one provider appears in the output.</div>
+
+        <!-- What each node holds -->
+        <div style="border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:20px;">
+          <div style="background:var(--bg); padding:10px 16px; font-size:11.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--border);">What each node holds — and when</div>
+          <table class="prd-table" style="margin:0; border:none;">
+            <thead>
+              <tr>
+                <th style="border-top:none;">Node</th>
+                <th style="border-top:none;">Permanent (stable between runs)</th>
+                <th style="border-top:none;">Transient (per computation, then cleared)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Node A (demand)</td>
+                <td>Party A's own data — identifier list, share A₁ of their dataset</td>
+                <td>Share 1 of each supply partner's matched-user attributes, for each active computation context</td>
+              </tr>
+              <tr>
+                <td>Node B (supply)</td>
+                <td>Party B's full attribute database — refreshed on schedule</td>
+                <td>Share 2 of Party A's identifier list, for the duration of the A×B computation only</td>
+              </tr>
+              <tr>
+                <td>Node C (supply)</td>
+                <td>Party C's full attribute database — refreshed on schedule</td>
+                <td>Share 2 of Party A's identifier list, for the duration of the A×C computation only</td>
+              </tr>
+              <tr>
+                <td>SL Orchestration node</td>
+                <td>No data. Coordination state only — which computations are active, sequencing, result assembly.</td>
+                <td>Joined result table, until delivered to Party A and cleared</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:8px;">Can A×B and A×C run in parallel?</div>
+        <div class="prd-body-text">Yes — they are independent bilateral computations with no shared state between B and C. Node A handles them as isolated execution contexts. The only constraint is Node A's compute capacity. If A×B and A×C must run sequentially due to resource limits, SL's orchestration node handles queuing; results are combined at the end either way. Supply partners B and C are never aware of each other.</div>
+
+        <div class="oq-badge">🔵 Open design question</div>
+        <div class="callout open" style="margin-bottom:12px;">
+          <strong>Concurrent computation capacity on Node A:</strong> What is the maximum number of simultaneous bilateral computations Node A can support? This determines whether multi-supply runs are truly parallel or queued sequentially. Needs input from SL Engineering before specifying a throughput SLA for demand partners.
+        </div>
+
+        <div class="oq-badge">🔵 Open design question</div>
+        <div class="callout open" style="margin-bottom:8px;">
+          <strong>What does "isolated context" mean inside a single node?</strong><br><br>
+          When Node A runs A×B and A×C simultaneously, it holds different transient data shares per context. The node software must enforce strict separation so no data bleeds between them. Two options:<br><br>
+          <strong>Logical isolation:</strong> Node A runs multiple contexts as isolated processes or threads within one node instance. No new hardware per run, but requires strong software-level isolation guarantees.<br><br>
+          <strong>One instance per bilateral pair:</strong> Each A×B, A×C run gets its own node instance — warm standby per supply partner, or spun fresh per run. Stronger isolation by design, but a supply partner with many demand partners needs multiple instances running concurrently.<br><br>
+          This affects node provisioning, infrastructure specs, and SLA. Needs resolution from SL Engineering.
+        </div>
+
+        <!-- ─────────────────────────────────────── -->
+        <!-- OPTION B: MPC — THREE SUB-OPTIONS -->
+        <!-- ─────────────────────────────────────── -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; margin-top:32px;">
+          <div style="background:var(--yellow-dim); border:1px solid rgba(180,83,9,0.25); color:var(--yellow); font-size:11.5px; font-weight:700; padding:3px 14px; border-radius:20px; letter-spacing:0.5px; text-transform:uppercase; white-space:nowrap;">Option B — Multi-Party Computation (MPC)</div>
+          <div style="flex:1; height:1px; background:var(--border);"></div>
+        </div>
+
+        <div class="prd-body-text">MPC allows more than two parties to jointly compute a function without any party revealing their private input. Unlike Option A (bilateral pairs), all participating parties are involved in a single protocol. However, the deployment model for the computation nodes is a key architectural decision — and it has significant implications for operations, trust, and scalability. Three sub-options are described below.</div>
+
+        <!-- ─── B1: FIXED 3-SERVER ─── -->
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; margin-top:24px;">B1 — Fixed 3-server model (SL-hosted or trusted third party)</div>
+        <div class="prd-body-text">Computation always runs across exactly 3 servers, regardless of how many data partners participate. These servers are not hosted by the data partners — they are operated by SL or a designated trusted third party. Partners contribute their data (secret-shared across the 3 servers) at onboarding, but do not provision or manage nodes themselves.</div>
+
+        <div class="flow-diagram" style="margin-bottom:20px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; text-align:center;">Server 1 — SL / Third Party</div>
+              <div class="flow-node" style="text-align:left; padding:12px 14px;">
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· Share 1 of all partners' data<br>· Hosted and managed by SL</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; text-align:center;">Server 2 — SL / Third Party</div>
+              <div class="flow-node" style="text-align:left; padding:12px 14px;">
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· Share 2 of all partners' data<br>· Hosted and managed by SL</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; text-align:center;">Server 3 — SL / Third Party</div>
+              <div class="flow-node" style="text-align:left; padding:12px 14px;">
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· Share 3 of all partners' data<br>· Hosted and managed by SL</div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; font-size:11.5px; color:var(--text-muted); font-style:italic; padding-top:12px; border-top:1px solid var(--border-subtle);">Data partners do not run nodes. Adding a new partner means re-sharing their data to the same 3 servers — no new infrastructure required.</div>
+        </div>
+
+        <div class="callout warning" style="margin-bottom:20px;">
+          <strong>Key implication:</strong> Partners must trust SL (or the third party) to honestly operate the servers. This is operationally simpler for partners but places infrastructure responsibility — and reputational risk — on SL. Security guarantees depend on the servers being non-colluding.
+        </div>
+
+        <!-- ─── B2: PARTY-HOSTED NODES ─── -->
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; margin-top:24px;">B2 — Each party hosts their own node</div>
+        <div class="prd-body-text">Every data partner provisions and operates their own MPC node. Data is secret-shared across all active nodes. Computation runs as a joint protocol across all party nodes simultaneously. Partners retain full infrastructure control.</div>
+
+        <div class="flow-diagram" style="margin-bottom:20px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; text-align:center;">Node A — Demand Partner</div>
+              <div class="flow-node" style="text-align:left; padding:12px 14px;">
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· A₁ — own data<br>· B₁ — share of B's data<br>· C₁ — share of C's data</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; text-align:center;">Node B — Supply Partner 1</div>
+              <div class="flow-node" style="text-align:left; padding:12px 14px;">
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· A₂ — share of A's data<br>· B₂ — own data<br>· C₂ — share of C's data</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; text-align:center;">Node C — Supply Partner 2</div>
+              <div class="flow-node" style="text-align:left; padding:12px 14px;">
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· A₃ — share of A's data<br>· B₃ — share of B's data<br>· C₃ — own data</div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; font-size:11.5px; color:var(--text-muted); font-style:italic; padding-top:12px; border-top:1px solid var(--border-subtle);">All nodes participate jointly. When a new partner D joins, all parties must re-shard their data into N+1 shares and re-provision.</div>
+        </div>
+
+        <div class="callout warning" style="margin-bottom:20px;">
+          <strong>Key implication:</strong> Every time a new partner joins, all existing parties must re-shard their data and redistribute shares to include the new node. This is a significant operational event — it is not self-serve, and it scales poorly in a dynamic marketplace where partners join incrementally.
+        </div>
+
+        <!-- ─── B3: HOMOMORPHIC ENCRYPTION ─── -->
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:10px; margin-top:24px;">B3 — Each party holds their own data, no sharding (Homomorphic Encryption) <span style="font-size:11px; font-weight:400; color:var(--text-muted); font-style:italic;">— Future roadmap</span></div>
+        <div class="prd-body-text">Each party keeps their data on their own node, fully encrypted. There is no secret sharing or data distribution. Computation happens directly on encrypted data between relevant parties using homomorphic encryption (HE). A new partner joining requires no changes to any existing party's node or data.</div>
+
+        <div class="flow-diagram" style="margin-bottom:20px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; text-align:center;">Node A — Demand Partner</div>
+              <div class="flow-node" style="text-align:left; padding:12px 14px;">
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· Full dataset A, encrypted locally<br>· No shares sent to other parties</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; text-align:center;">Node B — Supply Partner 1</div>
+              <div class="flow-node" style="text-align:left; padding:12px 14px;">
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· Full dataset B, encrypted locally<br>· No shares sent to other parties</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; text-align:center;">Node C — Supply Partner 2</div>
+              <div class="flow-node" style="text-align:left; padding:12px 14px;">
+                <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">· Full dataset C, encrypted locally<br>· No shares sent to other parties</div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; font-size:11.5px; color:var(--text-muted); font-style:italic; padding-top:12px; border-top:1px solid var(--border-subtle);">Computation runs on ciphertexts. Each party's plaintext data never leaves their node. New partners can join without any resharing event.</div>
+        </div>
+
+        <div class="callout warning" style="margin-bottom:20px;">
+          <strong>Not ready for v1.0.</strong> HE is computationally expensive, especially for complex or multi-variable functions. Current performance makes it impractical for production workloads at the enrichment scale this platform targets. This option belongs on the roadmap — not the near-term architecture. It should be revisited as HE tooling matures.
+        </div>
+
+        <!-- ─────────────────────────────────────── -->
+        <!-- TRADEOFF TABLE -->
+        <!-- ─────────────────────────────────────── -->
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px; margin-top:32px;">Tradeoff summary</div>
+        <table class="prd-table" style="margin-bottom:8px;">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Option A — Bilateral 2PC</th>
+              <th>Option B1 — Fixed 3-server MPC</th>
+              <th>Option B2 — Party-hosted nodes</th>
+              <th>Option B3 — HE (future)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Who hosts nodes</td>
+              <td>Each party hosts their own node</td>
+              <td>SL or trusted third party (always 3 servers)</td>
+              <td>Each party hosts their own node</td>
+              <td>Each party hosts their own node</td>
+            </tr>
+            <tr>
+              <td>Data distribution</td>
+              <td>2-party secret sharing per bilateral pair</td>
+              <td>Secret-shared across 3 fixed servers at onboarding</td>
+              <td>N-party secret sharing across all party nodes</td>
+              <td>No sharing — data stays on owner's node, encrypted</td>
+            </tr>
+            <tr>
+              <td>Adding a new supply partner</td>
+              <td>Spin up one new node; no existing party re-provisions</td>
+              <td>Re-share new partner's data to the same 3 servers; existing parties unaffected</td>
+              <td>All parties re-shard and re-provision for the new N+1 party set</td>
+              <td>New partner provisions their own node; no other party is affected</td>
+            </tr>
+            <tr>
+              <td>Partner infrastructure control</td>
+              <td>Full — each party runs their own node</td>
+              <td>None — partners must trust SL/third party with hosting</td>
+              <td>Full — each party runs their own node</td>
+              <td>Full — each party runs their own node</td>
+            </tr>
+            <tr>
+              <td>Operational complexity</td>
+              <td>Low — bilateral pairs, isolated contexts</td>
+              <td>Low for partners; higher for SL (operating infrastructure)</td>
+              <td>High — resharding required on every party set change</td>
+              <td>Low operationally; high computationally</td>
+            </tr>
+            <tr>
+              <td>Readiness</td>
+              <td>Ready — recommended for v1.0</td>
+              <td>Viable — requires SL to take on hosting responsibility</td>
+              <td>Viable but operationally expensive at scale</td>
+              <td>Not ready — future roadmap only</td>
+            </tr>
+            <tr>
+              <td>Best suited for</td>
+              <td>Dynamic marketplace where partnerships evolve over time</td>
+              <td>Partners who want zero infrastructure responsibility</td>
+              <td>Fixed, pre-agreed cohort with a stable long-term relationship</td>
+              <td>Use cases where data must never leave the owner's environment under any model</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- 5. Protocols Supported -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 5</div>
+        <div class="prd-section-title">Protocols Supported — Enrichment Function Model</div>
+        <div class="prd-body-text">Every enrichment computation runs as a cryptographic protocol over the matched user set. The question this section addresses is: how are those protocols defined, and who can define them? There are two architecturally different approaches.</div>
+
+        <div class="callout" style="margin-bottom:24px;">
+          <strong>Latency baseline:</strong> Enrichment computation does not need to be real-time. A latency of minutes is acceptable — this meaningfully expands what is technically feasible for both options below. The goal is correctness and privacy, not sub-second response.
+        </div>
+
+        <!-- Option 1 -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+          <div style="background:var(--accent-dim); border:1px solid rgba(13,148,136,0.3); color:var(--accent); font-size:11.5px; font-weight:700; padding:3px 14px; border-radius:20px; letter-spacing:0.5px; text-transform:uppercase; white-space:nowrap;">Option 1 — Function library</div>
+          <div style="flex:1; height:1px; background:var(--border);"></div>
+        </div>
+
+        <div class="prd-body-text">Enrichment functions are built one at a time as use cases arrive. Each function — income threshold, subscriber status, spend band, EMI detection — is a purpose-built MPC protocol, designed, tested, and deployed by SL Engineering. Once built, it is available to any demand partner whose DSA covers it.</div>
+
+        <table class="prd-table" style="margin-bottom:16px;">
+          <thead><tr><th>Dimension</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>How functions are added</td>
+              <td>Demand or supply partner identifies a need. SL Engineering scopes and builds the protocol. It enters the enrichment catalogue once validated.</td>
+            </tr>
+            <tr>
+              <td>Coverage today</td>
+              <td>Most common enrichment types — threshold comparisons, categorical lookups, band aggregations — are likely already built or close. The long tail of niche queries is the gap.</td>
+            </tr>
+            <tr>
+              <td>Efficiency</td>
+              <td>Each protocol is purpose-optimised. Good efficiency per function, but adding new functions has engineering lead time — not self-serve.</td>
+            </tr>
+            <tr>
+              <td>Demand partner experience</td>
+              <td>Selects from a catalogue of available enrichment types. Cannot define custom logic. If a needed function isn't in the catalogue, they raise a request and wait for SL Engineering to build it.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Option 2 -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; margin-top:28px;">
+          <div style="background:var(--yellow-dim); border:1px solid rgba(180,83,9,0.25); color:var(--yellow); font-size:11.5px; font-weight:700; padding:3px 14px; border-radius:20px; letter-spacing:0.5px; text-transform:uppercase; white-space:nowrap;">Option 2 — Flexible computation layer</div>
+          <div style="flex:1; height:1px; background:var(--border);"></div>
+        </div>
+
+        <div class="prd-body-text">A translation layer sits between the demand partner's query and the MPC protocol. The demand partner specifies what they want — a field, an operator, a threshold, an output format — and the platform translates this into a valid MPC protocol at runtime. Any expressible query can run without SL Engineering involvement per function.</div>
+
+        <table class="prd-table" style="margin-bottom:16px;">
+          <thead><tr><th>Dimension</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>How functions are added</td>
+              <td>Demand partner defines the query directly on the platform — field name, condition, output type. The translation layer generates the protocol. No per-function engineering work by SL.</td>
+            </tr>
+            <tr>
+              <td>Coverage</td>
+              <td>Theoretically unlimited — any query the translation layer can parse and validate. In practice, bounded by what the translation layer supports (field types, operators, aggregation methods).</td>
+            </tr>
+            <tr>
+              <td>Efficiency</td>
+              <td>Generalised protocols are less efficient than purpose-built ones. Given that latency of minutes is acceptable, this may be a tolerable tradeoff — but it needs validation with SL Engineering on what the floor is.</td>
+            </tr>
+            <tr>
+              <td>Demand partner experience</td>
+              <td>True self-serve for enrichment definition. Partner defines what they want; platform handles translation and validation. Significantly higher product complexity to build and maintain.</td>
+            </tr>
+            <tr>
+              <td>Risk</td>
+              <td>The translation layer itself is a significant engineering challenge. Incorrectly translated protocols could produce wrong results or, worse, leak information. Protocol validation before execution is a hard requirement.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Tradeoff -->
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px; margin-top:8px;">Tradeoff and recommendation</div>
+
+        <table class="prd-table" style="margin-bottom:20px;">
+          <thead><tr><th></th><th>Option 1 — Function library</th><th>Option 2 — Flexible layer</th></tr></thead>
+          <tbody>
+            <tr><td>Time to first enrichment</td><td>Fast — if function already exists</td><td>Slower — translation layer must be built first</td></tr>
+            <tr><td>Adding a new enrichment type</td><td>SL Engineering builds it — days to weeks</td><td>Demand partner defines it — minutes</td></tr>
+            <tr><td>Protocol efficiency</td><td>High — purpose-optimised per function</td><td>Lower — generalised; acceptable if minutes of latency is the floor</td></tr>
+            <tr><td>Build complexity</td><td>Low per function; grows linearly</td><td>High upfront; scales well once built</td></tr>
+            <tr><td>Protocol correctness guarantee</td><td>Tested per function before deployment</td><td>Requires runtime validation — harder to guarantee</td></tr>
+          </tbody>
+        </table>
+
+        <div class="oq-badge">🔵 Open design question</div>
+        <div class="callout open">
+          <strong>Recommended path: Option 1 now, Option 2 as a strategic investment.</strong><br><br>
+          Start with a function library. Most enrichment use cases across the first wave of partners — income thresholds, subscriber status, spend bands, EMI flags — can be covered with a small, well-curated set of purpose-built protocols. Build these well, get them into production, and observe what demand partners actually ask for.<br><br>
+          Option 2 becomes the right investment when: (a) the function request queue from demand partners is high and the per-function engineering cost is a bottleneck, or (b) a demand partner class emerges that needs truly custom computation logic that cannot be approximated by catalogue functions.<br><br>
+          The decision point is not architectural — it is commercial. When does the catalogue start saying no too often?
+        </div>
+
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- 6. Offline -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 6</div>
+        <div class="prd-section-title">What Happens Offline</div>
+        <div class="prd-body-text">Everything that touches commercial, legal, or infrastructure setup is explicitly outside platform scope. The platform reflects the outcome of these processes — it does not facilitate them.</div>
+
+        <table class="prd-table">
+          <thead><tr><th>What</th><th>Who owns it</th><th>Platform impact</th></tr></thead>
+          <tbody>
+            <tr><td>Commercial onboarding</td><td>SL Sales</td><td>Credentials created for the partner</td></tr>
+            <tr><td>Data Sharing Agreement (DSA) negotiation and signing</td><td>SL Legal + partner legal</td><td>Agreement flag activated per supply partner</td></tr>
+            <tr><td>KYC / KYB of onboarding entity</td><td>SL Compliance</td><td>Prerequisite to credential creation</td></tr>
+            <tr><td>Cloud node provisioning at partner's infra</td><td>SL Engineering + partner IT</td><td>Node must be online for computation to run</td></tr>
+            <tr><td>Data schema alignment (fields, identifier type)</td><td>SL Solutions + partner data team</td><td>Schema template available for download in platform</td></tr>
+            <tr><td>SDK installation and configuration</td><td>SL Engineering</td><td>Prerequisite to any computation</td></tr>
+            <tr><td>Agreement flag activation on platform</td><td>SL Admin</td><td>Unlocks computation for that supply partner</td></tr>
+            <tr><td>SL Orchestration node provisioned</td><td>SL Engineering</td><td>Coordination node set up — no partner data stored here; handles result assembly across bilateral computations</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout warning">
+          <strong>Two separate gates on the platform:</strong> Credentials give a partner access to log in and browse. A separate per-provider agreement flag gates the ability to run computation. Both are set offline by SL — the platform enforces them, not manages them.
+        </div>
+
+        <div class="oq-badge">🔵 Open question</div>
+        <div class="callout open">
+          <strong>Mandatory validation run:</strong> Is there a test/dry-run that SL Engineering must sign off on before a partner's node goes live for production computation? If yes — who certifies it, and does a "verified" or "validated" status appear anywhere on the platform?
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- 6. Onboarding -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 6</div>
+        <div class="prd-section-title">Onboarding — Handholding to Self-Serve</div>
+        <div class="prd-body-text">The offline setup steps in Section 5 are currently handled entirely by SL Engineering and Solutions. To scale beyond 3–5 partners, some of these steps will need to move onto the platform. The strategy is deliberate: handhold the first cohort completely, learn what breaks, then build self-serve tooling for the steps that are high-friction or error-prone.</div>
+
+        <div class="callout" style="margin-bottom:24px;">
+          <strong>Phase strategy:</strong> First 1–3 partners onboarded fully by SL Engineering — white-glove, offline. Use that experience to identify which steps are highest friction, most error-prone, or most frequently asked about. Build platform tooling for those steps first. Do not build self-serve infrastructure speculatively.
+        </div>
+
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px;">Which steps are candidates for self-serve, and when</div>
+        <table class="prd-table" style="margin-bottom:20px;">
+          <thead><tr><th>Onboarding step</th><th>Current owner</th><th>Self-serve candidate?</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Commercial agreement and KYC</td>
+              <td>SL Sales + Compliance</td>
+              <td>No — v1 and likely v2</td>
+              <td>Legal and compliance review cannot be automated. Always offline.</td>
+            </tr>
+            <tr>
+              <td>DSA negotiation and signing</td>
+              <td>SL Legal + partner legal</td>
+              <td>No — v1</td>
+              <td>Bespoke per partner pair. E-signing workflow possible in a later version.</td>
+            </tr>
+            <tr>
+              <td>Data schema alignment</td>
+              <td>SL Solutions</td>
+              <td>Yes — medium priority</td>
+              <td>Schema template download already in platform. Next step: guided schema validation on upload, with field-mapping UI.</td>
+            </tr>
+            <tr>
+              <td>Node provisioning</td>
+              <td>SL Engineering</td>
+              <td>Yes — high priority to automate</td>
+              <td>Currently manual and slow. A guided setup flow or infrastructure-as-code script could reduce SL Engineering time significantly.</td>
+            </tr>
+            <tr>
+              <td>SDK installation and configuration</td>
+              <td>SL Engineering</td>
+              <td>Yes — medium priority</td>
+              <td>SDK documentation and a step-by-step install guide on the platform reduces back-and-forth. Automated config validation (ping test) would let partners confirm their node is live without SL involvement.</td>
+            </tr>
+            <tr>
+              <td>Node health check and go-live sign-off</td>
+              <td>SL Engineering</td>
+              <td>Yes — should be platform-visible</td>
+              <td>A node status indicator on the platform (online / offline / unverified) gives both SL and the partner visibility. Replaces manual "is it working?" check-ins.</td>
+            </tr>
+            <tr>
+              <td>Agreement flag activation</td>
+              <td>SL Admin</td>
+              <td>Partial — SL internal tool</td>
+              <td>Flag is set by SL Admin today. An internal admin panel (not partner-facing) would be cleaner than a database edit. Out of scope for partner-facing v1.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="oq-badge">🔵 Open question</div>
+        <div class="callout open">
+          <strong>What does the first handholding cohort teach us?</strong> After onboarding partners 1–3, SL Solutions and Engineering should document: which steps took the most calendar time, which required the most back-and-forth, and which were most likely to be done incorrectly on the partner's side. That audit should directly drive what gets built for self-serve in v2. No self-serve build decision should be made before that data exists.
+        </div>
+
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- 7. Demand Partner E2E -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 8</div>
+        <div class="prd-section-title">Demand Partner — End-to-End Experience</div>
+        <div class="prd-body-text">The demand partner journey spans two distinct phases: an offline setup phase owned by SL, and an online self-serve phase on the platform. Both must be complete before computation can run.</div>
+
+        <!-- Phase 1: Offline -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; margin-top:8px;">
+          <div style="background:var(--yellow-dim); border:1px solid rgba(180,83,9,0.25); color:var(--yellow); font-size:11.5px; font-weight:700; padding:3px 12px; border-radius:20px; letter-spacing:0.5px; text-transform:uppercase;">Phase 1 — Offline</div>
+          <div style="flex:1; height:1px; background:var(--border);"></div>
+          <div style="font-size:12px; color:var(--text-muted);">Managed by SL before platform access is granted</div>
+        </div>
+
+        <div style="border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:24px;">
+          <div style="display:grid; grid-template-columns:28px 1fr; gap:0;">
+
+            <div style="background:var(--bg); border-bottom:1px solid var(--border-subtle); padding:12px 0 12px 14px; font-size:12px; font-weight:700; color:var(--text-muted);">1</div>
+            <div style="padding:12px 16px; border-bottom:1px solid var(--border-subtle);">
+              <div style="font-size:13.5px; font-weight:600; color:var(--text);">Commercial agreement signed</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Demand partner signs commercial terms with Silence Labs. SL Sales owns this.</div>
+            </div>
+
+            <div style="background:var(--bg); border-bottom:1px solid var(--border-subtle); padding:12px 0 12px 14px; font-size:12px; font-weight:700; color:var(--text-muted);">2</div>
+            <div style="padding:12px 16px; border-bottom:1px solid var(--border-subtle);">
+              <div style="font-size:13.5px; font-weight:600; color:var(--text);">Data Sharing Agreement (DSA) finalised with each supply partner</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Each supply partner the demand partner wants to match against requires a separate DSA. SL Legal facilitates. This is what activates the agreement flag per provider on the platform.</div>
+            </div>
+
+            <div style="background:var(--bg); border-bottom:1px solid var(--border-subtle); padding:12px 0 12px 14px; font-size:12px; font-weight:700; color:var(--text-muted);">3</div>
+            <div style="padding:12px 16px; border-bottom:1px solid var(--border-subtle);">
+              <div style="font-size:13.5px; font-weight:600; color:var(--text);">Data schema and identifier agreed</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">SL Solutions aligns with the demand partner on the input format: which identifier to use (phone, email, custom ID), field names, and expected data volume. Schema template is made available for download in the platform.</div>
+            </div>
+
+            <div style="background:var(--bg); border-bottom:1px solid var(--border-subtle); padding:12px 0 12px 14px; font-size:12px; font-weight:700; color:var(--text-muted);">4</div>
+            <div style="padding:12px 16px; border-bottom:1px solid var(--border-subtle);">
+              <div style="font-size:13.5px; font-weight:600; color:var(--text);">SDK installed and node server configured</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">SL Engineering deploys the Silent Compute SDK on the demand partner's infrastructure and provisions the secure node. This is a prerequisite for any computation to run.</div>
+            </div>
+
+            <div style="background:var(--bg); padding:12px 0 12px 14px; font-size:12px; font-weight:700; color:var(--text-muted);">5</div>
+            <div style="padding:12px 16px;">
+              <div style="font-size:13.5px; font-weight:600; color:var(--text);">Platform credentials issued</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">SL Admin creates the demand partner account. Login credentials are shared offline. Agreement flags for active supply partners are set at this point.</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Phase 2: Online -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+          <div style="background:var(--accent-dim); border:1px solid rgba(13,148,136,0.3); color:var(--accent); font-size:11.5px; font-weight:700; padding:3px 12px; border-radius:20px; letter-spacing:0.5px; text-transform:uppercase;">Phase 2 — Online</div>
+          <div style="flex:1; height:1px; background:var(--border);"></div>
+          <div style="font-size:12px; color:var(--text-muted);">Self-serve on the platform</div>
+        </div>
+
+        <div class="flow-diagram">
+          <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:20px;">Demand Partner Online Flow</div>
+
+          <div style="display:flex; flex-direction:column; gap:0;">
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--accent); color:white; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">Log in → go to Marketplace</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">Demand partner logs in with credentials issued by SL. Lands on Marketplace, which shows all supply partners and their agreement status — Active, Pending, or Not Enabled.</div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--accent); color:white; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">Select one or more data providers</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">Only providers with an Active DSA can be selected. Pending and Not Enabled providers are visible but locked. The demand partner selects the providers they want to enrich against in this run.</div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--accent); color:white; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">Choose enrichment types per provider</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">For each selected provider, the demand partner picks which enrichment signals they want — e.g. income band, recharge pattern, EMI status. Only enrichments covered under their DSA are shown.</div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--accent); color:white; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">4</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">Upload user data</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">Uploads a CSV with the agreed identifier column (phone number, email, or custom ID). The same file is used for matching against all selected providers. The raw data stays on the demand partner's infrastructure — only encrypted, secret-shared representations are transmitted to the SL compute nodes.</div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--accent); color:white; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">5</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">Review configuration and initiate computation</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">Reviews a summary of providers, enrichments selected, and data source. Confirms and triggers the run. From this point, computation is handled by the SL infrastructure.</div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--yellow); color:white; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">6</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">Computation enters pending state — awaiting supply partner approval</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">Once the demand partner initiates, the run is queued and enters a pending state. Each supply partner in the run must manually approve before PSI can begin. Manual approval is required for every computation request — there is no auto-approve even when an active DSA is in place. Notification UX for supply partner approval is a separate design decision.</div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--accent-dim); border:2px solid var(--accent); color:var(--accent); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">7</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">PSI runs — per provider</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">Private Set Intersection runs separately against each provider's database. Hashed identifiers from both sides are compared. Only the intersection count is revealed — neither side sees the other's full list or which specific users matched.</div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--accent-dim); border:2px solid var(--accent); color:var(--accent); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">8</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">MPC runs — enrichment computation on matched set</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">For each provider, enrichment computation runs only on the users who matched in PSI. The supply partner computes the agreed signals on their data. The demand partner's Customer IDs are never shared with the supply partner at any point.</div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--green); color:white; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">9</div>
+              </div>
+              <div style="background:transparent; width:2px;"></div>
+              <div style="padding-bottom:4px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">Output delivered — available for download</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">Results appear in the platform: one row per matched user, identified by the demand partner's own Customer ID, with one column per enrichment per provider. Output is downloadable as CSV. An audit certificate is also available for compliance records.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>Key constraint:</strong> Steps 1–5 are blocked until offline setup (Phase 1) is complete. Steps 6–9 are blocked until the demand partner has an Active DSA with at least one supply partner. The platform enforces both gates — it does not manage them.
+        </div>
+
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- 7. Supply Partner E2E -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 9</div>
+        <div class="prd-section-title">Supply Partner — End-to-End Experience</div>
+        <div class="prd-body-text">The supply partner journey also spans an offline setup phase and an online response phase. Unlike the demand partner, the supply partner does not initiate computation — they receive requests, approve them, and the platform handles the rest. Their view of the output is intentionally minimal.</div>
+
+        <!-- Phase 1: Offline -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; margin-top:8px;">
+          <div style="background:var(--yellow-dim); border:1px solid rgba(180,83,9,0.25); color:var(--yellow); font-size:11.5px; font-weight:700; padding:3px 12px; border-radius:20px; letter-spacing:0.5px; text-transform:uppercase;">Phase 1 — Offline</div>
+          <div style="flex:1; height:1px; background:var(--border);"></div>
+          <div style="font-size:12px; color:var(--text-muted);">Managed by SL before platform access is granted</div>
+        </div>
+
+        <div style="border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:24px;">
+          <div style="display:grid; grid-template-columns:28px 1fr; gap:0;">
+
+            <div style="background:var(--bg); border-bottom:1px solid var(--border-subtle); padding:12px 0 12px 14px; font-size:12px; font-weight:700; color:var(--text-muted);">1</div>
+            <div style="padding:12px 16px; border-bottom:1px solid var(--border-subtle);">
+              <div style="font-size:13.5px; font-weight:600; color:var(--text);">Commercial agreement with Silence Labs signed</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">Supply partner signs commercial terms covering data monetisation, permissible use, and liability. SL Sales owns this.</div>
+            </div>
+
+            <div style="background:var(--bg); border-bottom:1px solid var(--border-subtle); padding:12px 0 12px 14px; font-size:12px; font-weight:700; color:var(--text-muted);">2</div>
+            <div style="padding:12px 16px; border-bottom:1px solid var(--border-subtle);">
+              <div style="font-size:13.5px; font-weight:600; color:var(--text);">DSA finalised with each demand partner</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">A separate Data Sharing Agreement is required for each demand partner the supply partner will serve. The DSA defines which enrichments are permitted, pricing per record, and permissible use. SL Legal facilitates.</div>
+            </div>
+
+            <div style="background:var(--bg); border-bottom:1px solid var(--border-subtle); padding:12px 0 12px 14px; font-size:12px; font-weight:700; color:var(--text-muted);">3</div>
+            <div style="padding:12px 16px; border-bottom:1px solid var(--border-subtle);">
+              <div style="font-size:13.5px; font-weight:600; color:var(--text);">Enrichment functions and computations aligned</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">SL Solutions works with the supply partner to define the exact computation logic: field names, threshold values, output format. Examples: <em>income &gt; ₹10,000 → Yes/No</em>, <em>subscriber status → Pre-paid / Post-paid</em>, <em>avg monthly recharge → band of ₹0–200 / ₹200–500 / &gt;₹500</em>. This determines what the platform's enrichment catalogue shows for that supply partner.</div>
+            </div>
+
+            <div style="background:var(--bg); border-bottom:1px solid var(--border-subtle); padding:12px 0 12px 14px; font-size:12px; font-weight:700; color:var(--text-muted);">4</div>
+            <div style="padding:12px 16px; border-bottom:1px solid var(--border-subtle);">
+              <div style="font-size:13.5px; font-weight:600; color:var(--text);">Node provisioned and SDK installed</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">SL Engineering spins up a secure compute node on the supply partner's infrastructure and installs the Silent Compute SDK. This is where PSI and MPC will run — the supply partner's data never leaves their environment.</div>
+            </div>
+
+            <div style="background:var(--bg); padding:12px 0 12px 14px; font-size:12px; font-weight:700; color:var(--text-muted);">5</div>
+            <div style="padding:12px 16px;">
+              <div style="font-size:13.5px; font-weight:600; color:var(--text);">Platform credentials issued</div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">SL Admin creates the supply partner account. Agreement flags for each active demand partner are activated at this point. The supply partner can log in and see their enrichment catalogue and incoming requests.</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Phase 2: Online -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+          <div style="background:var(--accent-dim); border:1px solid rgba(13,148,136,0.3); color:var(--accent); font-size:11.5px; font-weight:700; padding:3px 12px; border-radius:20px; letter-spacing:0.5px; text-transform:uppercase;">Phase 2 — Online</div>
+          <div style="flex:1; height:1px; background:var(--border);"></div>
+          <div style="font-size:12px; color:var(--text-muted);">Reactive — supply partner responds to incoming requests</div>
+        </div>
+
+        <div class="flow-diagram">
+          <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:20px;">Supply Partner Online Flow</div>
+
+          <div style="display:flex; flex-direction:column; gap:0;">
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--accent); color:white; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">Computation request received from a demand partner</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">When a demand partner initiates a run, the supply partner sees a pending request on their dashboard — which demand partner, which enrichments, estimated record count. No demand partner user data is visible at this stage.</div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--accent); color:white; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">Supply partner reviews and approves</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">Manual approval is required for every computation request — there is no auto-approve even for long-standing active DSAs. Supply partner confirms the request is within the scope of the active DSA — correct enrichment types, within agreed volume limits. Rejection is also possible (e.g. volume limit reached, maintenance window).</div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--yellow); color:white; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">Data made available on the node</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">The supply partner's data must be present on their secure node before PSI can run.</div>
+                <div class="oq-badge" style="margin-top:8px;">🔵 Open design question</div>
+                <div class="callout open" style="margin-top:4px;">
+                  <strong>Is the supply partner's data pre-loaded on the node, or pushed fresh per run?</strong><br><br>
+                  Option A — Pre-loaded: Supply partner's database is synced to the node on a schedule (daily / weekly). PSI runs against this snapshot. Simpler UX — no action needed per run. Raises questions about data freshness and storage.<br><br>
+                  Option B — Per-run push: Supply partner actively uploads or pushes a fresh dataset for each computation request. More control and freshness, but adds friction and an extra step to every run.<br><br>
+                  This decision affects the supply partner's online flow significantly and should be resolved before build.
+                </div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--accent-dim); border:2px solid var(--accent); color:var(--accent); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">4</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">PSI runs</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">Hashed identifiers from the demand partner's list are matched against the supply partner's database using Private Set Intersection. Neither side sees the other's raw identifiers. Only the intersection count is revealed to both parties.</div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch; margin-bottom:0;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--accent-dim); border:2px solid var(--accent); color:var(--accent); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">5</div>
+              </div>
+              <div style="background:var(--border); width:2px; margin:32px auto 0;"></div>
+              <div style="padding-bottom:20px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">MPC runs — enrichment computation on matched set</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">The agreed enrichment queries run on the matched subset only. The supply partner's node computes the outputs (e.g. income band, subscriber status) using their data. The demand partner's Customer IDs are never exposed to the supply partner at any point in this step.</div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:32px 3px 1fr; gap:0 14px; align-items:stretch;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:32px; height:32px; border-radius:50%; background:var(--green); color:white; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">6</div>
+              </div>
+              <div style="background:transparent; width:2px;"></div>
+              <div style="padding-bottom:4px;">
+                <div style="font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; padding-top:6px;">Run completes — supply partner sees a summary only</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">The output is delivered directly to the demand partner. The supply partner does not see the enriched output or the demand partner's user data. Their view is limited to: which demand partner the run was for, which computation types ran, how many records were matched, and the earnings generated for this run.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>What the supply partner sees vs. what they don't:</strong>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:10px;">
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Visible to supply partner</div>
+              <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.8;">
+                Which demand partner initiated the run<br>
+                Which enrichment types ran<br>
+                How many records were matched<br>
+                Earnings for this run<br>
+                Cumulative usage and billing history
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--red); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Not visible to supply partner</div>
+              <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.8;">
+                The demand partner's Customer IDs<br>
+                The demand partner's raw user list<br>
+                Which specific users matched<br>
+                The enriched output values delivered<br>
+                Any data about non-matched users
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Supply partner UI mockup -->
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px; margin-top:24px;">Supply partner platform view</div>
+
+        <!-- Pending request -->
+        <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Pending approval</div>
+        <div class="result-preview" style="margin-bottom:20px;">
+          <div style="padding:16px 18px; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <div style="width:36px; height:36px; border-radius:50%; background:var(--accent-dim); border:1.5px solid rgba(13,148,136,0.3); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:var(--accent); flex-shrink:0;">NC</div>
+              <div>
+                <div style="font-size:13.5px; font-weight:600; color:var(--text);">NeoCredit Financial</div>
+                <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Income band · EMI status · 2 enrichment types</div>
+                <div style="display:flex; gap:12px; margin-top:6px;">
+                  <div style="font-size:12px; color:var(--text-muted);">Est. records: <strong style="color:var(--text-secondary);">8,400</strong></div>
+                  <div style="font-size:12px; color:var(--text-muted);">Requested: <strong style="color:var(--text-secondary);">28 May 2026, 11:42 am</strong></div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; flex-shrink:0;">
+              <button class="btn btn-sm btn-secondary" style="pointer-events:none;">Reject</button>
+              <button class="btn btn-sm btn-primary" style="pointer-events:none;">Approve →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Past requests table -->
+        <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Past requests</div>
+        <div class="result-preview">
+          <table class="prd-table" style="margin:0;">
+            <thead>
+              <tr>
+                <th>Demand partner</th>
+                <th>Computation types</th>
+                <th>Records matched</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>NeoCredit Financial</td>
+                <td>Income band · EMI status</td>
+                <td style="font-weight:600; color:var(--text);">6,210</td>
+                <td>14 May 2026</td>
+                <td><span class="badge badge-green badge-dot">Completed</span></td>
+              </tr>
+              <tr>
+                <td>FinoBank</td>
+                <td>Income band</td>
+                <td style="font-weight:600; color:var(--text);">3,884</td>
+                <td>2 May 2026</td>
+                <td><span class="badge badge-green badge-dot">Completed</span></td>
+              </tr>
+              <tr>
+                <td>NeoCredit Financial</td>
+                <td>Income band · Credit active · EMI status</td>
+                <td style="font-weight:600; color:var(--text);">5,102</td>
+                <td>18 Apr 2026</td>
+                <td><span class="badge badge-green badge-dot">Completed</span></td>
+              </tr>
+              <tr>
+                <td>QuickLend</td>
+                <td>Income band</td>
+                <td style="font-weight:600; color:var(--text);">1,940</td>
+                <td>3 Apr 2026</td>
+                <td><span class="badge badge-red">Rejected</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:8px;">Supply partner never sees the demand partner's Customer IDs, raw user list, or enriched output values — only the summary above.</div>
+
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- 8. Costs and Pricing -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 10</div>
+        <div class="prd-section-title">Costs and Pricing</div>
+        <div class="prd-body-text">Three distinct cost and pricing layers sit underneath every computation. Each is owned differently and set through a different process.</div>
+
+        <table class="prd-table" style="margin-bottom:24px;">
+          <thead><tr><th>Cost layer</th><th>Who bears it</th><th>How it's set</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Node infrastructure</td>
+              <td>Each partner bears their own — demand partner pays for Node A, supply partner pays for Node B. SL pays for the Orchestration node.</td>
+              <td>Partners provision and run nodes on their own infrastructure. SL Engineering assists setup but does not subsidise running costs.</td>
+            </tr>
+            <tr>
+              <td>Computation pricing (per record / per run)</td>
+              <td>Demand partner pays supply partner for access to enrichment data</td>
+              <td>Defined offline in the DSA. SL is in the loop on every negotiation — SL quotes, facilitates, and the rate is formalised in the agreement before the platform is activated for that pair.</td>
+            </tr>
+            <tr>
+              <td>SL platform fee</td>
+              <td>Taken from the computation pricing flow</td>
+              <td>SL's margin is built into the pricing it negotiates — not a separate line item visible to partners.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px;">Payment collection flow</div>
+        <div class="prd-body-text">Once a computation run completes, the demand partner owes the supply partner for the matched and enriched records. There are two ways this payment can flow:</div>
+
+        <div class="oq-badge">🔵 Open design question</div>
+        <div class="callout open" style="margin-bottom:16px;">
+          <strong>Option 1 — Via SL (preferred):</strong> Demand partner pays SL. SL takes its margin and remits the supply partner's share. SL controls the billing relationship with both sides, has full visibility into revenue, and can enforce payment before releasing results.<br><br>
+          <strong>Option 2 — Direct to supply partner:</strong> Demand partner pays the supply partner directly. Supply partner then remits SL's fee separately. Simpler for the partners but SL loses visibility and control — SL's fee collection depends on the supply partner initiating a separate transfer.<br><br>
+          Option 1 is preferred. It keeps SL in the billing relationship on both sides, makes revenue reconciliation straightforward, and gives SL a natural enforcement mechanism — results are not released until payment is confirmed.
+        </div>
+
+        <div class="callout warning">
+          <strong>Not on the platform in v1:</strong> Billing on the platform shows a read-only view of usage and spend. Actual payment processing, invoicing, and remittance are handled offline in v1. The platform records what ran and how many records were matched; the money movement happens outside it.
+        </div>
+
+        <div style="height:1px; background:var(--border-subtle); margin:24px 0;"></div>
+
+        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px;">Rate card and margin mechanics</div>
+        <div class="prd-body-text">For pricing to scale — and for SL to quote consistently across deals — supply partner rates need to be stored centrally and versioned. SL adds a margin layer on top before quoting to demand partners. Neither side sees the other's number.</div>
+
+        <table class="prd-table" style="margin-bottom:20px;">
+          <thead><tr><th>Layer</th><th>What it is</th><th>Who sets it</th><th>Visible to partners?</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Supply partner base rate</td>
+              <td>Price per matched record, per enrichment type, set by the supply partner</td>
+              <td>SL negotiates with supply partner offline. Stored in SL's internal system.</td>
+              <td>Not visible to demand partners</td>
+            </tr>
+            <tr>
+              <td>SL margin</td>
+              <td>Percentage or fixed markup applied on top of base rate</td>
+              <td>SL internal — configurable per supply partner or per enrichment type. Can be updated without renegotiating DSAs.</td>
+              <td>Not visible to either partner</td>
+            </tr>
+            <tr>
+              <td>Demand partner price</td>
+              <td>Base rate + SL margin = the rate quoted to and agreed by the demand partner in their DSA</td>
+              <td>SL quotes this to demand partner. Formalised in the DSA.</td>
+              <td>Visible to demand partner (their own rate only)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout" style="margin-bottom:16px;">
+          <strong>Ideal target state:</strong> SL maintains a standard rate card per supply partner — updated periodically as relationships mature or volumes change. When a new demand partner is onboarded, SL pulls the current base rate, applies the margin, and quotes. No custom pricing per deal unless the demand partner is large enough to warrant it. This keeps quoting fast and margin consistent.
+        </div>
+
+        <div class="oq-badge">🔵 Open question</div>
+        <div class="callout open">
+          <strong>Where is the rate card stored?</strong> Today this likely lives in a spreadsheet or in the DSA documents. For quoting and billing to be consistent at scale, it needs to be in a system SL can update centrally — a simple internal admin tool or a structured config file at minimum. This does not need to be partner-facing, but it needs to be auditable and versionable. Should be scoped before the third partner is onboarded.
+        </div>
+
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Out of scope -->
+      <div class="prd-section">
+        <div class="prd-section-num">Section 11</div>
+        <div class="prd-section-title">Out of Scope — v1</div>
+        <div class="card" style="padding: 16px 20px;">
+          <div class="out-of-scope-item">Node management or monitoring UI — handled by SL Engineering directly</div>
+          <div class="out-of-scope-item">SDK documentation or setup wizard on-platform</div>
+          <div class="out-of-scope-item">Agreement creation, negotiation, or e-signing on-platform</div>
+          <div class="out-of-scope-item">KYC / KYB workflow on-platform</div>
+          <div class="out-of-scope-item">Multi-party orchestration edge cases (3+ providers) — the platform supports multi-provider selection; open questions around concurrent capacity and sequencing are documented in Section 4</div>
+          <div class="out-of-scope-item">Real MPC backend — platform is a prototype for sales and design/engineering handoff</div>
+          <div class="out-of-scope-item">Mobile / responsive layout</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
