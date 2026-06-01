@@ -89,6 +89,7 @@
       <div class="nav-section-label">Configuration</div>
       <a class="nav-item active" href="dashboard.html"><span class="icon">⚙️</span><span>Partners</span></a>
       <a class="nav-item" href="dashboard.html" onclick="switchTab('pricing')"><span class="icon">💰</span><span>Pricing</span></a>
+      <a class="nav-item" href="dashboard.html" onclick="switchTab('onboarding')"><span class="icon">📋</span><span>Onboarding</span></a>
       <div class="divider" style="margin: 8px 0;"></div>
       <div class="nav-section-label">System</div>
       <a class="nav-item" href="../index.html"><span class="icon">↩</span><span>Sign out</span></a>
@@ -140,6 +141,7 @@
       <div class="tab-bar" id="mainTabBar">
         <button class="tab-btn active" onclick="switchTab('partners')">Partners</button>
         <button class="tab-btn" onclick="switchTab('pricing')">Pricing &amp; Costs</button>
+        <button class="tab-btn" onclick="switchTab('onboarding')">Onboarding Status</button>
       </div>
 
       <!-- PARTNERS TAB -->
@@ -440,63 +442,282 @@
 
       <!-- PRICING TAB -->
       <div id="tabPricing" style="display:none;">
-        <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:4px;">Rate Card Configuration</div>
-        <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:20px;">Supply partner base rates and SL margin. Demand partner price is computed automatically. Neither side sees the other's number.</div>
-
-        <div class="card" style="padding:0; overflow:hidden; margin-bottom:24px;">
-          <table class="pricing-table">
-            <thead>
-              <tr>
-                <th>Supply partner</th>
-                <th>Enrichment type</th>
-                <th>Base rate (₹ / record)</th>
-                <th>SL margin</th>
-                <th>Demand partner price</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Bureau ID</td>
-                <td>Income Band</td>
-                <td><input class="pricing-input" id="p1" value="0.50" oninput="calcPrice('p1','m1','d1')"> ₹</td>
-                <td><input class="pricing-input" id="m1" value="25" oninput="calcPrice('p1','m1','d1')"> %</td>
-                <td id="d1" style="font-weight:700; color:var(--text);">₹0.63</td>
-              </tr>
-              <tr>
-                <td>Bureau ID</td>
-                <td>EMI Status</td>
-                <td><input class="pricing-input" id="p2" value="0.75" oninput="calcPrice('p2','m2','d2')"> ₹</td>
-                <td><input class="pricing-input" id="m2" value="25" oninput="calcPrice('p2','m2','d2')"> %</td>
-                <td id="d2" style="font-weight:700; color:var(--text);">₹0.94</td>
-              </tr>
-              <tr>
-                <td>Bureau ID</td>
-                <td>Pre/Post-Paid</td>
-                <td><input class="pricing-input" id="p3" value="0.40" oninput="calcPrice('p3','m3','d3')"> ₹</td>
-                <td><input class="pricing-input" id="m3" value="25" oninput="calcPrice('p3','m3','d3')"> %</td>
-                <td id="d3" style="font-weight:700; color:var(--text);">₹0.50</td>
-              </tr>
-              <tr>
-                <td>HDFC Data Services</td>
-                <td>Income Band</td>
-                <td><input class="pricing-input" id="p4" value="0.80" oninput="calcPrice('p4','m4','d4')"> ₹</td>
-                <td><input class="pricing-input" id="m4" value="25" oninput="calcPrice('p4','m4','d4')"> %</td>
-                <td id="d4" style="font-weight:700; color:var(--text);">₹1.00</td>
-              </tr>
-              <tr>
-                <td>HDFC Data Services</td>
-                <td>Credit Active</td>
-                <td><input class="pricing-input" id="p5" value="1.20" oninput="calcPrice('p5','m5','d5')"> ₹</td>
-                <td><input class="pricing-input" id="m5" value="25" oninput="calcPrice('p5','m5','d5')"> %</td>
-                <td id="d5" style="font-weight:700; color:var(--text);">₹1.50</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="sub-tab-bar">
+          <button class="sub-tab-btn active" onclick="switchPricingTab('costs')">Cost Configuration</button>
+          <button class="sub-tab-btn" onclick="switchPricingTab('demand')">Final Demand Partner Price</button>
         </div>
 
-        <div style="display:flex; align-items:center;">
-          <button class="save-btn" onclick="savePricing()">Save rate card</button>
-          <span class="save-toast" id="saveToast">✓ Saved</span>
+        <!-- Cost Configuration -->
+        <div id="pricingCosts">
+          <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:4px;">Supply Cost & SL Margin</div>
+          <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">What supply partners charge us, and the margin SL applies. The baseline demand partner price is calculated automatically — neither party sees the other's number.</div>
+
+          <div class="card" style="padding:0; overflow:hidden; margin-bottom:20px;">
+            <table class="pricing-table">
+              <thead>
+                <tr>
+                  <th>Supply partner</th>
+                  <th>Enrichment type</th>
+                  <th>Supply base rate (₹ / record)</th>
+                  <th>SL margin</th>
+                  <th>Baseline demand price</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Bureau ID</td>
+                  <td>Income Band</td>
+                  <td><input class="pricing-input" id="p1" value="0.50" oninput="calcAll()"> ₹</td>
+                  <td><input class="pricing-input" id="m1" value="25" oninput="calcAll()"> %</td>
+                  <td id="d1" style="font-weight:700; color:var(--text);">₹0.63</td>
+                </tr>
+                <tr>
+                  <td>Bureau ID</td>
+                  <td>EMI Status</td>
+                  <td><input class="pricing-input" id="p2" value="0.75" oninput="calcAll()"> ₹</td>
+                  <td><input class="pricing-input" id="m2" value="25" oninput="calcAll()"> %</td>
+                  <td id="d2" style="font-weight:700; color:var(--text);">₹0.94</td>
+                </tr>
+                <tr>
+                  <td>Bureau ID</td>
+                  <td>Pre/Post-Paid</td>
+                  <td><input class="pricing-input" id="p3" value="0.40" oninput="calcAll()"> ₹</td>
+                  <td><input class="pricing-input" id="m3" value="25" oninput="calcAll()"> %</td>
+                  <td id="d3" style="font-weight:700; color:var(--text);">₹0.50</td>
+                </tr>
+                <tr>
+                  <td>HDFC Data Services</td>
+                  <td>Income Band</td>
+                  <td><input class="pricing-input" id="p4" value="0.80" oninput="calcAll()"> ₹</td>
+                  <td><input class="pricing-input" id="m4" value="25" oninput="calcAll()"> %</td>
+                  <td id="d4" style="font-weight:700; color:var(--text);">₹1.00</td>
+                </tr>
+                <tr>
+                  <td>HDFC Data Services</td>
+                  <td>Credit Active</td>
+                  <td><input class="pricing-input" id="p5" value="1.20" oninput="calcAll()"> ₹</td>
+                  <td><input class="pricing-input" id="m5" value="25" oninput="calcAll()"> %</td>
+                  <td id="d5" style="font-weight:700; color:var(--text);">₹1.50</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display:flex; align-items:center;">
+            <button class="save-btn" onclick="savePricing('saveToast1')">Save cost configuration</button>
+            <span class="save-toast" id="saveToast1">✓ Saved</span>
+          </div>
+        </div>
+
+        <!-- Demand Partner Pricing -->
+        <div id="pricingDemand" style="display:none;">
+          <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:4px;">Final Demand Partner Price</div>
+          <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">What we charge each demand partner. Defaults to the baseline price from Cost Configuration. Override per partner where a custom rate has been agreed in the DSA.</div>
+
+          <div class="card" style="padding:0; overflow:hidden; margin-bottom:20px;">
+            <table class="pricing-table">
+              <thead>
+                <tr>
+                  <th>Demand partner</th>
+                  <th>Enrichment type</th>
+                  <th>Supply partner</th>
+                  <th>Baseline price</th>
+                  <th>Final price (₹ / record)</th>
+                  <th>Custom?</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>NeoCredit Financial</td>
+                  <td>Income Band</td>
+                  <td style="color:var(--text-muted); font-weight:400;">Bureau ID</td>
+                  <td style="color:var(--text-muted);" id="ref_nc_ib">₹0.63</td>
+                  <td><input class="pricing-input" id="fp1" value="0.63" oninput="markCustom('custom1','fp1','ref_nc_ib')"> ₹</td>
+                  <td id="custom1" style="font-size:12px; color:var(--text-muted);">—</td>
+                </tr>
+                <tr>
+                  <td>NeoCredit Financial</td>
+                  <td>EMI Status</td>
+                  <td style="color:var(--text-muted); font-weight:400;">Bureau ID</td>
+                  <td style="color:var(--text-muted);" id="ref_nc_emi">₹0.94</td>
+                  <td><input class="pricing-input" id="fp2" value="0.94" oninput="markCustom('custom2','fp2','ref_nc_emi')"> ₹</td>
+                  <td id="custom2" style="font-size:12px; color:var(--text-muted);">—</td>
+                </tr>
+                <tr>
+                  <td>NeoCredit Financial</td>
+                  <td>Income Band</td>
+                  <td style="color:var(--text-muted); font-weight:400;">HDFC Data Services</td>
+                  <td style="color:var(--text-muted);" id="ref_nc_hdfc">₹1.00</td>
+                  <td><input class="pricing-input" id="fp3" value="0.90" oninput="markCustom('custom3','fp3','ref_nc_hdfc')"> ₹</td>
+                  <td id="custom3" style="font-size:12px; color:var(--green); font-weight:600;">Custom</td>
+                </tr>
+                <tr>
+                  <td>NeoCredit Financial</td>
+                  <td>Credit Active</td>
+                  <td style="color:var(--text-muted); font-weight:400;">HDFC Data Services</td>
+                  <td style="color:var(--text-muted);" id="ref_nc_ca">₹1.50</td>
+                  <td><input class="pricing-input" id="fp4" value="1.50" oninput="markCustom('custom4','fp4','ref_nc_ca')"> ₹</td>
+                  <td id="custom4" style="font-size:12px; color:var(--text-muted);">—</td>
+                </tr>
+                <tr>
+                  <td>FinoBank</td>
+                  <td>Income Band</td>
+                  <td style="color:var(--text-muted); font-weight:400;">Bureau ID</td>
+                  <td style="color:var(--text-muted);" id="ref_fb_ib">₹0.63</td>
+                  <td><input class="pricing-input" id="fp5" value="0.63" oninput="markCustom('custom5','fp5','ref_fb_ib')"> ₹</td>
+                  <td id="custom5" style="font-size:12px; color:var(--text-muted);">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display:flex; align-items:center;">
+            <button class="save-btn" onclick="savePricing('saveToast2')">Save demand pricing</button>
+            <span class="save-toast" id="saveToast2">✓ Saved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ONBOARDING TAB -->
+      <div id="tabOnboarding" style="display:none;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+          <!-- Supply side -->
+          <div>
+            <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:14px;">Supply Partners</div>
+
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:12px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border-subtle);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="partner-avatar supply" style="width:30px;height:30px;font-size:10px;">BI</div>
+                  <div><div class="partner-name">Bureau ID</div><div class="partner-type">Telecom data</div></div>
+                </div>
+                <span class="badge badge-green badge-dot">Onboarded</span>
+              </div>
+              <div style="padding:14px 18px;">
+                <div class="onboarding-steps">
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Commercial agreement signed</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Node provisioned &amp; SDK installed</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Data schema aligned</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Platform credentials issued</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:12px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border-subtle);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="partner-avatar supply" style="width:30px;height:30px;font-size:10px;">HD</div>
+                  <div><div class="partner-name">HDFC Data Services</div><div class="partner-type">Financial data</div></div>
+                </div>
+                <span class="badge badge-green badge-dot">Onboarded</span>
+              </div>
+              <div style="padding:14px 18px;">
+                <div class="onboarding-steps">
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Commercial agreement signed</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Node provisioned &amp; SDK installed</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Data schema aligned</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Platform credentials issued</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:12px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border-subtle);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="partner-avatar supply" style="width:30px;height:30px;font-size:10px;">AI</div>
+                  <div><div class="partner-name">Airtel</div><div class="partner-type">Telecom data</div></div>
+                </div>
+                <span class="badge badge-yellow">In Progress</span>
+              </div>
+              <div style="padding:14px 18px;">
+                <div class="onboarding-steps">
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Commercial agreement signed</div>
+                  <div class="onboarding-step"><div class="step-dot pending">~</div> Node provisioning — SL Engineering</div>
+                  <div class="onboarding-step"><div class="step-dot todo">·</div> Data schema alignment</div>
+                  <div class="onboarding-step"><div class="step-dot todo">·</div> Platform credentials to be issued</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border-subtle);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="partner-avatar supply" style="width:30px;height:30px;font-size:10px;">JI</div>
+                  <div><div class="partner-name">Jio Platforms</div><div class="partner-type">Telecom + commerce</div></div>
+                </div>
+                <span class="badge badge-gray">Not Started</span>
+              </div>
+              <div style="padding:14px 18px;">
+                <div class="onboarding-steps">
+                  <div class="onboarding-step"><div class="step-dot pending">~</div> Commercial agreement — in negotiation</div>
+                  <div class="onboarding-step"><div class="step-dot todo">·</div> Node provisioning</div>
+                  <div class="onboarding-step"><div class="step-dot todo">·</div> Data schema alignment</div>
+                  <div class="onboarding-step"><div class="step-dot todo">·</div> Platform credentials to be issued</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Demand side -->
+          <div>
+            <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:14px;">Demand Partners</div>
+
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:12px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border-subtle);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="partner-avatar demand" style="width:30px;height:30px;font-size:10px;">NC</div>
+                  <div><div class="partner-name">NeoCredit Financial</div><div class="partner-type">Digital lender</div></div>
+                </div>
+                <span class="badge badge-green badge-dot">Onboarded</span>
+              </div>
+              <div style="padding:14px 18px;">
+                <div class="onboarding-steps">
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Commercial agreement signed</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Node provisioned &amp; SDK installed</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Data schema aligned</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Platform credentials issued</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:12px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border-subtle);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="partner-avatar demand" style="width:30px;height:30px;font-size:10px;">FB</div>
+                  <div><div class="partner-name">FinoBank</div><div class="partner-type">Microfinance</div></div>
+                </div>
+                <span class="badge badge-green badge-dot">Onboarded</span>
+              </div>
+              <div style="padding:14px 18px;">
+                <div class="onboarding-steps">
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Commercial agreement signed</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Node provisioned &amp; SDK installed</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Data schema aligned</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Platform credentials issued</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border-subtle);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="partner-avatar demand" style="width:30px;height:30px;font-size:10px;">QL</div>
+                  <div><div class="partner-name">QuickLend</div><div class="partner-type">BNPL provider</div></div>
+                </div>
+                <span class="badge badge-yellow">In Progress</span>
+              </div>
+              <div style="padding:14px 18px;">
+                <div class="onboarding-steps">
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Commercial agreement signed</div>
+                  <div class="onboarding-step"><div class="step-dot done">✓</div> Data schema aligned</div>
+                  <div class="onboarding-step"><div class="step-dot pending">~</div> Node provisioning — SL Engineering</div>
+                  <div class="onboarding-step"><div class="step-dot todo">·</div> Platform credentials to be issued</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -506,13 +727,41 @@
 
 <script>
 function switchTab(tab) {
-  const tabs = ['partners', 'pricing'];
+  const tabs = ['partners', 'pricing', 'onboarding'];
   tabs.forEach(t => {
     document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = t === tab ? 'block' : 'none';
   });
   document.querySelectorAll('#mainTabBar .tab-btn').forEach((btn, i) => {
-    btn.classList.toggle('active', (tab === 'partners' && i === 0) || (tab === 'pricing' && i === 1));
+    btn.classList.toggle('active', tabs[i] === tab);
   });
+}
+
+function switchPricingTab(sub) {
+  document.getElementById('pricingCosts').style.display = sub === 'costs' ? 'block' : 'none';
+  document.getElementById('pricingDemand').style.display = sub === 'demand' ? 'block' : 'none';
+  document.querySelectorAll('#tabPricing .sub-tab-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', (sub === 'costs' && i === 0) || (sub === 'demand' && i === 1));
+  });
+}
+
+function markCustom(customId, inputId, refId) {
+  const input = parseFloat(document.getElementById(inputId).value) || 0;
+  const ref = parseFloat(document.getElementById(refId).textContent.replace('₹','')) || 0;
+  const cell = document.getElementById(customId);
+  if (Math.abs(input - ref) > 0.001) {
+    cell.textContent = 'Custom';
+    cell.style.color = 'var(--green)';
+    cell.style.fontWeight = '600';
+  } else {
+    cell.textContent = '—';
+    cell.style.color = 'var(--text-muted)';
+    cell.style.fontWeight = '400';
+  }
+}
+
+function calcAll() {
+  const pairs = [['p1','m1','d1'],['p2','m2','d2'],['p3','m3','d3'],['p4','m4','d4'],['p5','m5','d5']];
+  pairs.forEach(([p,m,d]) => calcPrice(p,m,d));
 }
 
 function switchSubTab(sub) {
@@ -539,8 +788,8 @@ function calcPrice(pId, mId, dId) {
   document.getElementById(dId).textContent = '₹' + price.toFixed(2);
 }
 
-function savePricing() {
-  const toast = document.getElementById('saveToast');
+function savePricing(toastId) {
+  const toast = document.getElementById(toastId);
   toast.style.display = 'inline';
   setTimeout(() => { toast.style.display = 'none'; }, 2000);
 }
